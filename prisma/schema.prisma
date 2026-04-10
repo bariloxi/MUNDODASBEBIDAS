@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+  }
+
+  datasource db {
+    provider = "postgresql"
+      url      = env("DATABASE_URL")
+      }
+
+      model User {
+        id        Int      @id @default(autoincrement())
+          email     String   @unique
+            password  String
+              name      String
+                role      String   @default("CAIXA")
+                  createdAt DateTime @default(now())
+                    updatedAt DateTime @updatedAt
+                      sales     Sale[]
+                      }
+
+                      model Category {
+                        id       Int       @id @default(autoincrement())
+                          name     String    @unique
+                            products Product[]
+                            }
+
+                            model Product {
+                              id         Int        @id @default(autoincrement())
+                                name       String
+                                  brand      String?
+                                    volume     String?
+                                      barcode    String?    @unique
+                                        costPrice  Float
+                                          sellPrice  Float
+                                            stock      Int        @default(0)
+                                              minStock   Int        @default(5)
+                                                expiry     DateTime?
+                                                  imageUrl   String?
+                                                    categoryId Int
+                                                      createdAt  DateTime   @default(now())
+                                                        updatedAt  DateTime   @updatedAt
+                                                          category   Category   @relation(fields: [categoryId], references: [id])
+                                                            saleItems  SaleItem[]
+                                                            }
+
+                                                            model Client {
+                                                              id        Int      @id @default(autoincrement())
+                                                                name      String
+                                                                  phone     String?  @unique
+                                                                    address   String?
+                                                                      points    Int      @default(0)
+                                                                        createdAt DateTime @default(now())
+                                                                          updatedAt DateTime @updatedAt
+                                                                            sales     Sale[]
+                                                                            }
+
+                                                                            model Sale {
+                                                                              id            Int        @id @default(autoincrement())
+                                                                                createdAt     DateTime   @default(now())
+                                                                                  total         Float
+                                                                                    discount      Float      @default(0)
+                                                                                      paymentMethod String
+                                                                                        status        String     @default("CONCLUIDA")
+                                                                                          userId        Int
+                                                                                            clientId      Int?
+                                                                                              invoice       Invoice?
+                                                                                                client        Client?    @relation(fields: [clientId], references: [id])
+                                                                                                  user          User       @relation(fields: [userId], references: [id])
+                                                                                                    items         SaleItem[]
+                                                                                                    }
+                                                                                                    
+                                                                                                    model Invoice {
+                                                                                                      id        Int      @id @default(autoincrement())
+                                                                                                        number    String   @unique
+                                                                                                          accessKey String   @unique
+                                                                                                            saleId    Int      @unique
+                                                                                                              createdAt DateTime @default(now())
+                                                                                                                updatedAt DateTime @updatedAt
+                                                                                                                  sale      Sale     @relation(fields: [saleId], references: [id])
+                                                                                                                  }
+                                                                                                                  
+                                                                                                                  model SaleItem {
+                                                                                                                    id        Int     @id @default(autoincrement())
+                                                                                                                      saleId    Int
+                                                                                                                        productId Int
+                                                                                                                          quantity  Int
+                                                                                                                            price     Float
+                                                                                                                              product   Product @relation(fields: [productId], references: [id])
+                                                                                                                                sale      Sale    @relation(fields: [saleId], references: [id])
+                                                                                                                                }
+                                                                                                                                
+                                                                                                                                model Expense {
+                                                                                                                                  id          Int      @id @default(autoincrement())
+                                                                                                                                    description String
+                                                                                                                                      amount      Float
+                                                                                                                                        category    String
+                                                                                                                                          date        DateTime @default(now())
+                                                                                                                                            createdAt   DateTime @default(now())
+                                                                                                                                              updatedAt   DateTime @updatedAt
+                                                                                                                                              }
+                                                                                                                                              
+                                                                                                                                              model Setting {
+                                                                                                                                                id    Int    @id @default(autoincrement())
+                                                                                                                                                  key   String @unique
+                                                                                                                                                    value String
+                                                                                                                                                    }
+                                                                                                                                                    
+                                                                                                                                                    model Log {
+                                                                                                                                                      id        Int      @id @default(autoincrement())
+                                                                                                                                                        event     String
+                                                                                                                                                          details   String?
+                                                                                                                                                            userId    Int?
+                                                                                                                                                              createdAt DateTime @default(now())
+                                                                                                                                                              }
+                                                                                                                                                              
