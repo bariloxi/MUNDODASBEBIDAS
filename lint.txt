@@ -1,0 +1,77 @@
+
+> mundo-das-bebidas@0.1.0 lint
+> eslint
+
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\scripts\reset.ts
+  6:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  7:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\app\delivery\page.tsx
+  3:17  warning  'Search' is defined but never used        @typescript-eslint/no-unused-vars
+  3:31  warning  'Filter' is defined but never used        @typescript-eslint/no-unused-vars
+  3:78  warning  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\app\finance\page.tsx
+  11:3   warning  'TrendingUp' is defined but never used    @typescript-eslint/no-unused-vars
+  14:3   warning  'ArrowRight' is defined but never used    @typescript-eslint/no-unused-vars
+  16:10  warning  'prisma' is defined but never used        @typescript-eslint/no-unused-vars
+  17:8   warning  'ExpenseForm' is defined but never used   @typescript-eslint/no-unused-vars
+  27:82  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:38  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:71  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\app\inventory\page.tsx
+  2:61  warning  'Search' is defined but never used      @typescript-eslint/no-unused-vars
+  2:69  warning  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\app\login\page.tsx
+  25:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\app\pdv\page.tsx
+  15:3  warning  'Loader2' is defined but never used     @typescript-eslint/no-unused-vars
+  18:3  warning  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\app\products\edit\[id]\page.tsx
+  3:27  warning  'Trash2' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\app\products\page.tsx
+  4:3  warning  'Search' is defined but never used         @typescript-eslint/no-unused-vars
+  8:3  warning  'AlertTriangle' is defined but never used  @typescript-eslint/no-unused-vars
+  9:3  warning  'ChevronRight' is defined but never used   @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\app\reports\page.tsx
+   2:8   warning  'Link' is defined but never used          @typescript-eslint/no-unused-vars
+   6:3   warning  'Calendar' is defined but never used      @typescript-eslint/no-unused-vars
+   7:3   warning  'Download' is defined but never used      @typescript-eslint/no-unused-vars
+  10:3   warning  'ArrowRight' is defined but never used    @typescript-eslint/no-unused-vars
+  42:29  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:63  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  47:14  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  47:40  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\components\ClientActions.tsx
+  7:10  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\components\InvoiceAction.tsx
+  13:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\components\InvoiceTemplate.tsx
+  4:10  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\components\ProductActions.tsx
+  7:10  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\components\SettingsForm.tsx
+   5:45  warning  'Globe' is defined but never used         @typescript-eslint/no-unused-vars
+  13:17  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:16  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Users\baril\.gemini\antigravity\scratch\mundo-das-bebidas\mundo-das-bebidas\src\components\StockAdjuster.tsx
+  25:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 40 problems (14 errors, 26 warnings)
+
