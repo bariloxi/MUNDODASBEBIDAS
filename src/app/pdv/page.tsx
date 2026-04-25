@@ -40,6 +40,7 @@ const PDVPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [discount, setDiscount] = useState(0);
+  const [surcharge, setSurcharge] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('DINHEIRO');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -102,6 +103,7 @@ const PDVPage = () => {
         setIsSuccess(true);
         setCart([]);
         setDiscount(0);
+        setSurcharge(0);
         
         // Auto-reset success after 30 seconds
         setTimeout(() => {
@@ -117,7 +119,7 @@ const PDVPage = () => {
   };
 
   const subtotal = cart.reduce((acc: number, item) => acc + (item.sellPrice * item.quantity), 0);
-  const total = Math.max(0, subtotal - discount);
+  const total = Math.max(0, subtotal + surcharge - discount);
   const change = typeof amountReceived === 'number' ? Math.max(0, amountReceived - total) : 0;
 
   return (
@@ -247,9 +249,27 @@ const PDVPage = () => {
                   <span className="text-xs font-bold text-zinc-500">R$</span>
                   <input 
                     type="number" 
-                    value={discount}
+                    value={discount || ''}
                     onChange={(e) => setDiscount(Number(e.target.value))}
-                    className="w-16 bg-transparent text-right outline-none text-base font-bold text-white"
+                    placeholder="0"
+                    className="w-16 bg-transparent text-right outline-none text-base font-bold text-white placeholder:text-zinc-600"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center p-3 rounded-none bg-bg-surface/60 border border-primary/20 focus-within:border-primary transition-all">
+                <div className="flex items-center gap-2">
+                  <Plus size={14} className="text-primary" />
+                  <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Acréscimo</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-white">
+                  <span className="text-xs font-bold text-zinc-500">R$</span>
+                  <input 
+                    type="number" 
+                    value={surcharge || ''}
+                    onChange={(e) => setSurcharge(Number(e.target.value))}
+                    placeholder="0"
+                    className="w-16 bg-transparent text-right outline-none text-base font-bold text-white placeholder:text-zinc-600"
                   />
                 </div>
               </div>

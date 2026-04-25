@@ -5,6 +5,7 @@ const nextConfig = {
     buildActivity: false,
     buildActivityPosition: 'bottom-right',
   },
+  serverExternalPackages: ['@prisma/client', 'prisma'],
 };
 
-export default nextConfig;
+module.exports = nextConfig;
