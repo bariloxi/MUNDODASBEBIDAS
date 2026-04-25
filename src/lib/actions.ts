@@ -57,22 +57,24 @@ export async function getCategories() {
 
 export async function searchProducts(term: string) {
   if (!term) return await prisma.product.findMany({ 
-    take: 10, 
+    take: 200, 
     include: { category: true },
-    where: { stock: { gt: 0 } }
+    where: { stock: { gt: 0 } },
+    orderBy: { name: 'asc' }
   });
 
   return await prisma.product.findMany({
     where: {
       OR: [
-        { name: { contains: term } },
-        { brand: { contains: term } },
-        { barcode: { contains: term } },
+        { name: { contains: term, mode: 'insensitive' } },
+        { brand: { contains: term, mode: 'insensitive' } },
+        { barcode: { contains: term, mode: 'insensitive' } },
       ],
       stock: { gt: 0 },
     },
     include: { category: true },
-    take: 20,
+    take: 100,
+    orderBy: { name: 'asc' }
   });
 }
 
