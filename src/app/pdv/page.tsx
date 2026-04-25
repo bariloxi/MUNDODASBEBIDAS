@@ -158,7 +158,7 @@ const PDVPage = () => {
               <div className="flex-1 space-y-1.5 mb-4">
                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{product.brand || 'Premium'}</p>
                 <h3 className="font-bold text-[13px] text-white group-hover:text-primary transition-colors leading-snug line-clamp-2">
-                  R$ {product.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} - {product.name}
+                  {product.name} - R$ {product.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </h3>
               </div>
               
@@ -216,7 +216,7 @@ const PDVPage = () => {
                   <div className="flex gap-3 items-center">
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-slate-100 truncate group-hover:text-primary transition-colors">
-                        R$ {item.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} - {item.name}
+                        {item.name} - R$ {item.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                       <p className="text-[10px] text-slate-500 font-medium uppercase">{item.brand || 'S/M'}</p>
                     </div>
