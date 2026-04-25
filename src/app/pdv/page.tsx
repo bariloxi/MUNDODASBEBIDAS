@@ -157,11 +157,13 @@ const PDVPage = () => {
             >
               <div className="flex-1 space-y-1.5 mb-4">
                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{product.brand || 'Premium'}</p>
-                <h3 className="font-bold text-[13px] text-white group-hover:text-primary transition-colors leading-snug line-clamp-2">{product.name}</h3>
+                <h3 className="font-bold text-[13px] text-white group-hover:text-primary transition-colors leading-snug line-clamp-2">
+                  R$ {product.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} - {product.name}
+                </h3>
               </div>
               
               <div className="flex justify-between items-center mt-auto pt-3 border-t border-border/60">
-                <span className="text-base font-bold text-white tracking-tight">R$ {product.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                <span className="text-sm font-medium text-slate-400 tracking-tight">Estoque:</span>
                 <div className={cn(
                   "px-2 py-0.5 rounded-none text-[9px] font-bold uppercase border",
                   product.stock <= 5 ? "bg-danger/10 border-danger/30 text-danger" : "bg-primary/10 border-primary/30 text-primary"
@@ -213,7 +215,9 @@ const PDVPage = () => {
                 <div key={item.id} className="group relative p-3 rounded-none bg-bg-surface/40 border border-border hover:border-primary/30 transition-all">
                   <div className="flex gap-3 items-center">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-slate-100 truncate group-hover:text-primary transition-colors">{item.name}</p>
+                      <p className="font-semibold text-sm text-slate-100 truncate group-hover:text-primary transition-colors">
+                        R$ {item.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} - {item.name}
+                      </p>
                       <p className="text-[10px] text-slate-500 font-medium uppercase">{item.brand || 'S/M'}</p>
                     </div>
                     <div className="flex items-center gap-2 bg-bg-secondary/50 rounded-none p-1 border border-border">
@@ -223,7 +227,7 @@ const PDVPage = () => {
                     </div>
                   </div>
                   <div className="mt-2 pt-2 border-t border-border/30 flex justify-between items-center">
-                    <span className="text-sm font-bold text-primary">R$ {(item.sellPrice * item.quantity).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    <span className="text-sm font-bold text-primary">Total: R$ {(item.sellPrice * item.quantity).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     <button onClick={() => removeFromCart(item.id)} className="p-1 text-slate-500 hover:text-danger hover:bg-danger/5 rounded-none transition-all">
                       <Trash2 size={14} />
                     </button>
