@@ -149,6 +149,7 @@ const ClientsPage = async ({
                               )}>
                                 Vence {new Date(nextDue).toLocaleDateString('pt-BR')}
                               </span>
+                            )}
                             <DebtManager 
                               clientId={client.id} 
                               clientName={client.name} 
