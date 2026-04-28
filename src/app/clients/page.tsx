@@ -26,7 +26,7 @@ const ClientsPage = async ({
     orderBy: { name: 'asc' },
     include: {
       sales: {
-        where: { status: 'PENDENTE' },
+        where: { status: 'AGUARDANDO_PAGAMENTO' },
         select: { total: true, dueDate: true },
         orderBy: { dueDate: 'asc' }
       },

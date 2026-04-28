@@ -96,7 +96,7 @@ export async function completeSale(data: {
           paymentMethod: data.paymentMethod,
           discount: data.discount,
           total: data.total,
-          status: data.paymentMethod === 'RECEBER_DEPOIS' ? 'PENDENTE' : 'CONCLUIDA',
+          status: data.paymentMethod === 'RECEBER_DEPOIS' ? 'AGUARDANDO_PAGAMENTO' : 'CONCLUIDA',
           clientId: data.clientId || null,
           dueDate: data.dueDate ? new Date(data.dueDate) : null,
           items: {
@@ -266,7 +266,7 @@ export async function getClientPendingSales(clientId: number) {
   return await prisma.sale.findMany({
     where: {
       clientId,
-      status: 'PENDENTE'
+      status: 'AGUARDANDO_PAGAMENTO'
     },
     orderBy: { createdAt: 'desc' }
   });
