@@ -4,6 +4,7 @@ import { UserPlus, Phone, MapPin, Users } from 'lucide-react';
 import SearchInput from '@/components/SearchInput';
 import ClientActions from '@/components/ClientActions';
 import { prisma } from '@/lib/prisma';
+import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,12 +18,17 @@ const ClientsPage = async ({
   const clients = await prisma.client.findMany({
     where: q ? {
       OR: [
-        { name: { contains: q } },
+        { name: { contains: q, mode: 'insensitive' } },
         { phone: { contains: q } },
       ],
     } : {},
     orderBy: { name: 'asc' },
     include: {
+      sales: {
+        where: { status: 'PENDENTE' },
+        select: { total: true, dueDate: true },
+        orderBy: { dueDate: 'asc' }
+      },
       _count: {
         select: { sales: true }
       }
@@ -68,6 +74,7 @@ const ClientsPage = async ({
                 <th className="px-6 py-4">Contato</th>
                 <th className="px-6 py-4">Endereço</th>
                 <th className="px-6 py-4 text-center">Frequência</th>
+                <th className="px-6 py-4 text-center">Pendência</th>
                 <th className="px-6 py-4 text-right">Ações</th>
               </tr>
             </thead>
@@ -116,6 +123,35 @@ const ClientsPage = async ({
                           <span className="text-[8px] font-bold text-primary uppercase tracking-widest">VIP Member</span>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {(() => {
+                        const pendingSales = client.sales || [];
+                        const totalDebt = pendingSales.reduce((acc, sale) => acc + sale.total, 0);
+                        const nextDue = pendingSales.length > 0 ? pendingSales[0].dueDate : null;
+
+                        if (totalDebt === 0) {
+                          return (
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Em dia</span>
+                          );
+                        }
+
+                        return (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-sm font-bold text-danger">
+                              R$ {totalDebt.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </span>
+                            {nextDue && (
+                              <span className={cn(
+                                "text-[9px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm",
+                                new Date(nextDue) < new Date() ? "bg-danger/10 text-danger border border-danger/20" : "bg-warning/10 text-warning border border-warning/20"
+                              )}>
+                                Vence {new Date(nextDue).toLocaleDateString('pt-BR')}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <ClientActions clientId={client.id} clientName={client.name} />
