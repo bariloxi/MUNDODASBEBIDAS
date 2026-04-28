@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { UserPlus, Phone, MapPin, Users } from 'lucide-react';
 import SearchInput from '@/components/SearchInput';
 import ClientActions from '@/components/ClientActions';
+import DebtManager from '@/components/DebtManager';
 import { prisma } from '@/lib/prisma';
 import { cn } from '@/lib/utils';
 
@@ -148,7 +149,11 @@ const ClientsPage = async ({
                               )}>
                                 Vence {new Date(nextDue).toLocaleDateString('pt-BR')}
                               </span>
-                            )}
+                            <DebtManager 
+                              clientId={client.id} 
+                              clientName={client.name} 
+                              totalDebt={totalDebt} 
+                            />
                           </div>
                         );
                       })()}

@@ -141,6 +141,7 @@ export async function updateSaleStatus(id: number, status: string) {
   });
   revalidatePath('/delivery');
   revalidatePath('/pdv');
+  revalidatePath('/clients');
   revalidatePath('/');
 }
 
@@ -258,6 +259,16 @@ export async function deleteUser(id: number) {
 export async function getClients() {
   return await prisma.client.findMany({
     orderBy: { name: 'asc' },
+  });
+}
+
+export async function getClientPendingSales(clientId: number) {
+  return await prisma.sale.findMany({
+    where: {
+      clientId,
+      status: 'PENDENTE'
+    },
+    orderBy: { createdAt: 'desc' }
   });
 }
 
