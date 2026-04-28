@@ -83,6 +83,8 @@ export async function completeSale(data: {
   paymentMethod: string;
   discount: number;
   total: number;
+  clientId?: number;
+  dueDate?: string;
   items: { productId: number; quantity: number; price: number }[];
 }) {
   try {
@@ -94,7 +96,9 @@ export async function completeSale(data: {
           paymentMethod: data.paymentMethod,
           discount: data.discount,
           total: data.total,
-          status: 'CONCLUIDA',
+          status: data.paymentMethod === 'RECEBER_DEPOIS' ? 'PENDENTE' : 'CONCLUIDA',
+          clientId: data.clientId || null,
+          dueDate: data.dueDate ? new Date(data.dueDate) : null,
           items: {
             create: data.items.map(item => ({
               productId: item.productId,

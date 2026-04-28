@@ -118,7 +118,7 @@ export default function LoginPage() {
           {/* Footer Line */}
           <div className="h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
         </div>
-        
+
         <p className="mt-8 text-center text-[10px] font-bold text-slate-600 uppercase tracking-widest">
           Mundo das Bebidas &copy; 2026 • Sistema de Gestão Geográfica
         </p>

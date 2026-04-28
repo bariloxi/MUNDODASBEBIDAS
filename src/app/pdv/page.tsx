@@ -7,6 +7,7 @@ import {
   Trash2, 
   Plus, 
   Minus, 
+  Clock,
   CreditCard, 
   Banknote, 
   QrCode,
@@ -19,8 +20,9 @@ import {
   Receipt
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { searchProducts, completeSale } from '@/lib/actions';
+import { searchProducts, completeSale, getClients } from '@/lib/actions';
 import InvoiceAction from '@/components/InvoiceAction';
+import { Calendar as CalendarIcon } from 'lucide-react';
 
 interface Product {
   id: number;
@@ -29,6 +31,13 @@ interface Product {
   stock: number;
   brand?: string | null;
   volume?: string | null;
+}
+
+interface Client {
+  id: number;
+  name: string;
+  phone?: string | null;
+  address?: string | null;
 }
 
 interface CartItem extends Product {
@@ -46,6 +55,11 @@ const PDVPage = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [lastSaleId, setLastSaleId] = useState<number | null>(null);
   const [amountReceived, setAmountReceived] = useState<number | string>('');
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [dueDate, setDueDate] = useState('');
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [clientSearch, setClientSearch] = useState('');
 
   // Load products from DB
   useEffect(() => {
@@ -57,6 +71,15 @@ const PDVPage = () => {
     const timeout = setTimeout(fetchProducts, 300);
     return () => clearTimeout(timeout);
   }, [searchTerm]);
+
+  // Load clients
+  useEffect(() => {
+    const fetchClients = async () => {
+      const results = await getClients();
+      setClients(results as Client[]);
+    };
+    fetchClients();
+  }, []);
 
   const addToCart = (product: Product) => {
     if (isSuccess) setIsSuccess(false);
@@ -84,6 +107,16 @@ const PDVPage = () => {
   const handleFinalize = async () => {
     if (cart.length === 0) return;
     
+    if (paymentMethod === 'RECEBER_DEPOIS' && !selectedClient) {
+      alert('Selecione um cliente para realizar uma venda a prazo.');
+      return;
+    }
+
+    if (paymentMethod === 'RECEBER_DEPOIS' && !dueDate) {
+      alert('Selecione uma data de vencimento para o recebimento.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await completeSale({
@@ -91,6 +124,8 @@ const PDVPage = () => {
         paymentMethod,
         discount,
         total,
+        clientId: selectedClient?.id,
+        dueDate: paymentMethod === 'RECEBER_DEPOIS' ? dueDate : undefined,
         items: cart.map(item => ({
           productId: item.id,
           quantity: item.quantity,
@@ -104,6 +139,8 @@ const PDVPage = () => {
         setCart([]);
         setDiscount(0);
         setSurcharge(0);
+        setSelectedClient(null);
+        setDueDate('');
         
         // Auto-reset success after 30 seconds
         setTimeout(() => {
@@ -123,6 +160,7 @@ const PDVPage = () => {
   const change = typeof amountReceived === 'number' ? Math.max(0, amountReceived - total) : 0;
 
   return (
+    <>
     <div className="h-[calc(100vh-140px)] flex gap-6 pb-6">
       {/* Left Column: Product Selection */}
       <div className="flex-1 flex flex-col gap-6">
@@ -315,11 +353,12 @@ const PDVPage = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {[
-                { id: 'DINHEIRO', icon: Banknote, label: 'Especie' },
+                { id: 'DINHEIRO', icon: Banknote, label: 'Espécie' },
                 { id: 'PIX', icon: QrCode, label: 'Pix' },
                 { id: 'CARTAO', icon: CreditCard, label: 'Cartão' },
+                { id: 'RECEBER_DEPOIS', icon: Clock, label: 'Pagar Depois' },
               ].map(method => (
                 <button 
                   key={method.id}
@@ -337,6 +376,21 @@ const PDVPage = () => {
               ))}
             </div>
 
+            {paymentMethod === 'RECEBER_DEPOIS' && !isSuccess && (
+              <div className="space-y-2 pt-2 animate-in fade-in slide-in-from-top-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                  <CalendarIcon size={12} className="text-primary" />
+                  Data para Recebimento
+                </label>
+                <input 
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full bg-bg-surface border border-primary/30 p-3 rounded-none outline-none focus:border-primary transition-all text-sm font-semibold text-white"
+                />
+              </div>
+            )}
+
             <button 
               onClick={handleFinalize}
               disabled={cart.length === 0 || isLoading}
@@ -349,22 +403,105 @@ const PDVPage = () => {
         </div>
 
         {/* Customer Info Card */}
-        <div className="premium-card !p-4 flex items-center justify-between group">
+        <button 
+          onClick={() => setShowClientModal(true)}
+          className="premium-card !p-4 flex items-center justify-between group w-full text-left transition-all hover:border-primary/40"
+        >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-none bg-bg-accent flex items-center justify-center text-zinc-400 group-hover:text-primary transition-colors">
+            <div className={cn(
+              "w-10 h-10 rounded-none flex items-center justify-center transition-colors",
+              selectedClient ? "bg-primary/20 text-primary" : "bg-bg-accent text-zinc-400 group-hover:text-primary"
+            )}>
               <User size={18} />
             </div>
             <div>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cliente Selecionado</p>
-              <p className="text-sm font-bold text-slate-200">Consumidor de Balcão</p>
+              <p className="text-sm font-bold text-slate-200">{selectedClient?.name || 'Consumidor de Balcão'}</p>
             </div>
           </div>
-          <button className="p-2 rounded-none hover:bg-zinc-800/50 transition-colors">
+          <div className="p-2 rounded-none hover:bg-zinc-800/50 transition-colors">
             <ChevronRight size={18} className="text-zinc-600 group-hover:text-primary" />
-          </button>
-        </div>
+          </div>
+        </button>
       </div>
-    </div>
+      
+      {/* Client Selection Modal */}
+      {showClientModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="premium-card w-full max-w-lg shadow-2xl border-primary/20 p-0 overflow-hidden">
+            <div className="p-6 border-b border-border flex justify-between items-center">
+              <h3 className="text-lg font-bold text-white flex items-center gap-3">
+                <User className="text-primary" size={20} />
+                Selecionar Cliente
+              </h3>
+              <button onClick={() => setShowClientModal(false)} className="text-slate-500 hover:text-white transition-colors">
+                <Plus size={24} className="rotate-45" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={18} />
+                <input 
+                  type="text" 
+                  placeholder="Buscar por nome ou telefone..."
+                  value={clientSearch}
+                  onChange={(e) => setClientSearch(e.target.value)}
+                  autoFocus
+                  className="w-full pl-12 pr-4 py-3 rounded-none bg-bg-surface border border-border focus:border-primary outline-none transition-all text-sm font-medium"
+                />
+              </div>
+
+              <div className="max-h-[400px] overflow-y-auto space-y-2 custom-scrollbar pr-2">
+                <button 
+                  onClick={() => { setSelectedClient(null); setShowClientModal(false); }}
+                  className="w-full p-4 rounded-none border border-border hover:border-primary/40 bg-bg-surface/40 text-left transition-all group flex items-center justify-between"
+                >
+                  <div>
+                    <p className="font-bold text-white group-hover:text-primary">Consumidor de Balcão</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Venda rápida sem identificação</p>
+                  </div>
+                  {!selectedClient && <CheckCircle2 size={18} className="text-primary" />}
+                </button>
+
+                {clients
+                  .filter(c => 
+                    c.name.toLowerCase().includes(clientSearch.toLowerCase()) || 
+                    (c.phone && c.phone.includes(clientSearch))
+                  )
+                  .map(client => (
+                    <button 
+                      key={client.id}
+                      onClick={() => { setSelectedClient(client); setShowClientModal(false); }}
+                      className={cn(
+                        "w-full p-4 rounded-none border hover:border-primary/40 bg-bg-surface/40 text-left transition-all group flex items-center justify-between",
+                        selectedClient?.id === client.id ? "border-primary bg-primary/5" : "border-border"
+                      )}
+                    >
+                      <div>
+                        <p className="font-bold text-white group-hover:text-primary">{client.name}</p>
+                        {client.phone && <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">{client.phone}</p>}
+                      </div>
+                      {selectedClient?.id === client.id && <CheckCircle2 size={18} className="text-primary" />}
+                    </button>
+                  ))
+                }
+              </div>
+            </div>
+            
+            <div className="p-4 bg-bg-secondary/40 border-t border-border flex justify-end">
+              <button 
+                onClick={() => setShowClientModal(false)}
+                className="px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+    </>
   );
 };
 

@@ -11,7 +11,10 @@ export async function seedCategories() {
     'Espumante',
     'Petiscos',
     'Cachaça',
-    'Gelo / Carvão'
+    'Gelo / Carvão',
+    'Água',
+    'Salgados',
+    'Tabacaria'
   ];
 
   for (const name of categories) {
