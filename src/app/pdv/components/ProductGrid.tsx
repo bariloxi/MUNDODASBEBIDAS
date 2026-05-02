@@ -71,29 +71,40 @@ export function ProductGrid({ onAddToCart }: ProductGridProps) {
             disabled={product.stock <= 0}
             onClick={() => onAddToCart(product)}
             className={cn(
-              "premium-card group text-left h-full transition-all",
+              "premium-card group text-left transition-all relative min-h-[160px]",
               product.stock <= 0 && "opacity-40 cursor-not-allowed grayscale"
             )}
           >
-            <div className="flex-1 space-y-2 mb-4">
-              <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">{product.brand || 'PREMIUM'}</span>
-              <h3 className="font-bold text-sm text-white group-hover:text-primary transition-colors leading-tight line-clamp-2">
-                {product.name}
-              </h3>
-              <p className="text-lg font-black text-white mt-1">
-                R$ {product.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="mb-2">
+                <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] opacity-80">
+                  {product.brand || 'PREMIUM'}
+                </span>
+                <h3 className="font-extrabold text-base text-white mt-1 leading-tight group-hover:text-primary transition-colors">
+                  {product.name}
+                </h3>
+              </div>
+              
+              <div className="mt-auto pt-4 flex flex-col gap-3">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-[10px] font-bold text-slate-500">R$</span>
+                  <span className="text-2xl font-black text-white tracking-tighter">
+                    {product.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
 
-            <div className="flex justify-between items-center mt-auto pt-4 border-t border-border/60">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Disponível</span>
-              <div className={cn(
-                "px-2.5 py-1 rounded-md text-[10px] font-black uppercase border",
-                product.stock <= 5 
-                  ? "bg-danger/10 border-danger/30 text-danger shadow-[0_0_10px_rgba(239,68,68,0.1)]" 
-                  : "bg-primary/10 border-primary/30 text-primary"
-              )}>
-                {product.stock} un
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Estoque</span>
+                  <div className={cn(
+                    "px-2 py-0.5 rounded flex items-center gap-1.5 border",
+                    product.stock <= 5 
+                      ? "bg-danger/10 border-danger/20 text-danger" 
+                      : "bg-success/10 border-success/20 text-success"
+                  )}>
+                    <div className={cn("w-1 h-1 rounded-full", product.stock <= 5 ? "bg-danger animate-pulse" : "bg-success")} />
+                    <span className="text-[10px] font-black">{product.stock} UN</span>
+                  </div>
+                </div>
               </div>
             </div>
           </button>
