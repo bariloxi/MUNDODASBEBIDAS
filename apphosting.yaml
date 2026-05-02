@@ -1,0 +1,18 @@
+# Configuração para o Firebase App Hosting
+# Documentação: https://firebase.google.com/docs/app-hosting/configure
+
+kind: "AppHostingYaml"
+apiVersion: "v1"
+
+# Configurações de ambiente
+env:
+  - variable: NEXT_PUBLIC_DATABASE_URL
+    secret: DATABASE_URL # Recomendado usar Secrets no console do Firebase
+  - variable: DATABASE_URL
+    secret: DATABASE_URL
+
+# Configurações de build
+runConfig:
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
