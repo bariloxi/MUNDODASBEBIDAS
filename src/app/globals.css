@@ -92,8 +92,8 @@ h1, h2, h3, h4, h5, h6 {
 .premium-card {
   background: linear-gradient(145deg, #1a1a1a, #111111);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 1.25rem;
+  border-radius: 12px;
+  padding: 1rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   display: flex;

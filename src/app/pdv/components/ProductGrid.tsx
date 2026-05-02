@@ -64,45 +64,44 @@ export function ProductGrid({ onAddToCart }: ProductGridProps) {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 content-start pr-2 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 content-start pr-2 custom-scrollbar">
         {products.map(product => (
           <button
             key={product.id}
             disabled={product.stock <= 0}
             onClick={() => onAddToCart(product)}
             className={cn(
-              "premium-card group text-left transition-all relative min-h-[160px]",
+              "premium-card group text-left transition-all relative min-h-[130px]",
               product.stock <= 0 && "opacity-40 cursor-not-allowed grayscale"
             )}
           >
             <div className="relative z-10 flex flex-col h-full">
-              <div className="mb-2">
-                <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em] opacity-80">
+              <div className="mb-1">
+                <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em] opacity-80">
                   {product.brand || 'PREMIUM'}
                 </span>
-                <h3 className="font-extrabold text-base text-white mt-1 leading-tight group-hover:text-primary transition-colors">
+                <h3 className="font-bold text-sm text-white mt-0.5 leading-tight group-hover:text-primary transition-colors line-clamp-2">
                   {product.name}
                 </h3>
               </div>
               
-              <div className="mt-auto pt-4 flex flex-col gap-3">
+              <div className="mt-auto pt-2 flex flex-col gap-2">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-[10px] font-bold text-slate-500">R$</span>
-                  <span className="text-2xl font-black text-white tracking-tighter">
+                  <span className="text-[9px] font-bold text-slate-500">R$</span>
+                  <span className="text-xl font-black text-white tracking-tighter">
                     {product.sellPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Estoque</span>
                   <div className={cn(
-                    "px-2 py-0.5 rounded flex items-center gap-1.5 border",
+                    "px-1.5 py-0.5 rounded flex items-center gap-1 border",
                     product.stock <= 5 
                       ? "bg-danger/10 border-danger/20 text-danger" 
                       : "bg-success/10 border-success/20 text-success"
                   )}>
                     <div className={cn("w-1 h-1 rounded-full", product.stock <= 5 ? "bg-danger animate-pulse" : "bg-success")} />
-                    <span className="text-[10px] font-black">{product.stock} UN</span>
+                    <span className="text-[9px] font-black">{product.stock} UN</span>
                   </div>
                 </div>
               </div>
