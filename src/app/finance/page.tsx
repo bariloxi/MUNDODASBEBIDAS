@@ -18,7 +18,10 @@ import ExpenseForm from '@/components/ExpenseForm';
 import { getExpenses, getSales } from '@/lib/actions';
 import { cn } from '@/lib/utils';
 import InvoiceAction from '@/components/InvoiceAction';
+import CancelSaleAction from '@/components/CancelSaleAction';
 import { SaleWithRelations } from '@/lib/types';
+
+export const dynamic = 'force-dynamic';
 
 async function getFinanceData() {
   const sales = await getSales();
@@ -59,7 +62,7 @@ const FinancePage = async () => {
             <DollarSign size={14} />
             <span>Controladoria & Gestão</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Fluxo Financeiro</h1>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">Fluxo Financeiro • Histórico</h1>
           <p className="text-slate-400 text-sm">Visão consolidada de receitas, despesas e saúde fiscal.</p>
         </div>
         <div className="flex items-center gap-3 bg-bg-surface/50 border border-border py-2 px-5 rounded-none text-xs font-semibold text-slate-300 shadow-sm">
@@ -177,11 +180,23 @@ const FinancePage = async () => {
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                           {sale.paymentMethod}
                         </span>
+                        <div className="h-1 w-1 rounded-none bg-slate-700" />
+                        <span className={cn(
+                          "text-[9px] font-black px-2 py-0.5 rounded-none uppercase tracking-tighter border",
+                          sale.status === 'CONCLUIDA' ? "bg-success/10 text-success border-success/20" :
+                          sale.status === 'CANCELADA' ? "bg-danger/10 text-danger border-danger/20" :
+                          "bg-warning/10 text-warning border-warning/20"
+                        )}>
+                          {sale.status}
+                        </span>
                       </div>
                       <p className="text-[11px] font-medium text-slate-400">
                         {(sale as SaleWithRelations).client?.name || 'Venda Balcão'} 
                         <span className="mx-2 text-slate-700">•</span>
                         {(sale as SaleWithRelations).items?.length || 0} {(sale as SaleWithRelations).items?.length === 1 ? 'item' : 'itens'}
+                      </p>
+                      <p className="text-[10px] text-slate-500 mt-1 truncate max-w-[300px] font-mono opacity-60">
+                        {(sale as SaleWithRelations).items?.map(i => `${i.quantity}x ${i.product.name}`).join(', ')}
                       </p>
                     </div>
                   </div>
@@ -191,7 +206,10 @@ const FinancePage = async () => {
                         R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
-                    <InvoiceAction saleId={sale.id} initialInvoice={(sale as SaleWithRelations).invoice} />
+                    <div className="flex items-center gap-3">
+                      <CancelSaleAction saleId={sale.id} status={sale.status} />
+                      <InvoiceAction saleId={sale.id} initialInvoice={(sale as SaleWithRelations).invoice} />
+                    </div>
                   </div>
                 </div>
               ))

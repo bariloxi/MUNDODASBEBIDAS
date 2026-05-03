@@ -146,6 +146,62 @@ export async function completeSale(data: {
   }
 }
 
+export async function cancelSale(saleId: number) {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Get the sale and its items
+      const sale = await tx.sale.findUnique({
+        where: { id: saleId },
+        include: { items: true }
+      });
+
+      if (!sale) throw new Error('Venda não encontrada');
+      if (sale.status === 'CANCELADA') throw new Error('Venda já está cancelada');
+
+      // 2. Update sale status
+      const updatedSale = await tx.sale.update({
+        where: { id: saleId },
+        data: { status: 'CANCELADA' }
+      });
+
+      // 3. Revert stock
+      for (const item of sale.items) {
+        const product = await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              increment: item.quantity
+            }
+          }
+        });
+
+        // 4. Log the reversal
+        await tx.log.create({
+          data: {
+            event: 'STOCK_REVERSAL',
+            details: `Cancelamento Venda #${saleId}: Produto ${product.name} (ID ${item.productId}) incrementado em ${item.quantity}. Novo estoque: ${product.stock}`,
+            userId: sale.userId
+          }
+        });
+      }
+
+      return updatedSale;
+    });
+
+    await createLog('SALE_CANCEL', `Venda ID ${saleId} cancelada. Estoque revertido.`);
+    
+    revalidatePath('/finance');
+    revalidatePath('/pdv');
+    revalidatePath('/products');
+    revalidatePath('/');
+    
+    return { success: true, sale: result };
+  } catch (error) {
+    console.error('Error cancelling sale:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Erro ao cancelar venda' };
+  }
+}
+
 export async function updateSaleStatus(id: number, status: string) {
   await prisma.sale.update({
     where: { id },

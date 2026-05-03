@@ -17,18 +17,18 @@ interface Client {
 }
 
 const PDVPage = () => {
-  const { 
-    cart, 
-    discount, 
-    surcharge, 
-    setDiscount, 
-    setSurcharge, 
-    addToCart, 
-    removeFromCart, 
-    updateQuantity, 
+  const {
+    cart,
+    discount,
+    surcharge,
+    setDiscount,
+    setSurcharge,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
     clearCart,
     subtotal,
-    total 
+    total
   } = useCart();
 
   const { showToast } = useToast();
@@ -124,15 +124,15 @@ const PDVPage = () => {
       {/* Right Column: Checkout Sidebar */}
       <div className="w-[380px] lg:w-[420px] flex-shrink-0 flex flex-col gap-5">
         <div className="flex-1 flex flex-col min-h-0">
-          <CartSidebar 
+          <CartSidebar
             items={cart}
             onUpdateQuantity={updateQuantity}
             onRemove={removeFromCart}
             isSuccess={isSuccess}
             lastSaleId={lastSaleId}
           />
-          
-          <CheckoutActions 
+
+          <CheckoutActions
             subtotal={subtotal}
             total={total}
             discount={discount}
@@ -151,7 +151,7 @@ const PDVPage = () => {
           />
         </div>
 
-        <ClientSelector 
+        <ClientSelector
           selectedClient={selectedClient}
           onSelect={setSelectedClient}
         />

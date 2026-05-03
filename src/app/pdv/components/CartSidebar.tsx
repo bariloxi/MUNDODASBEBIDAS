@@ -5,6 +5,7 @@ import { ShoppingCart, Trash2, Plus, Minus, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CartItem } from '@/hooks/useCart';
 import InvoiceAction from '@/components/InvoiceAction';
+import CancelSaleAction from '@/components/CancelSaleAction';
 
 interface CartSidebarProps {
   items: CartItem[];
@@ -51,6 +52,7 @@ export function CartSidebar({
               {lastSaleId && (
                 <div className="pt-4 border-t border-border/50 flex flex-col gap-2">
                   <InvoiceAction saleId={lastSaleId} />
+                  <CancelSaleAction saleId={lastSaleId} status="CONCLUIDA" showText={true} />
                   <p className="text-[9px] text-slate-500 font-bold uppercase mt-2">Deseja ver a conta completa?</p>
                   <button
                     onClick={async () => {
