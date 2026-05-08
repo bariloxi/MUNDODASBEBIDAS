@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Truck, Search, Plus, Filter, MessageSquare, Clock, MapPin, Package, ChevronRight, Navigation } from 'lucide-react';
+import { Truck, Plus, MessageSquare, Clock, MapPin, Package, Navigation } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import DeliveryStatusAction from '@/components/DeliveryStatusAction';
 import { cn } from '@/lib/utils';

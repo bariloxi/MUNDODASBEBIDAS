@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { 
-  Store, User as UserIcon, Bell, ShieldCheck, Database, Globe, Save, Loader2, 
+  Store, User as UserIcon, Bell, ShieldCheck, Database, Save, Loader2, 
   ChevronRight, Lock, Laptop, Settings as SettingsIcon, Plus, Trash2, Edit 
 } from 'lucide-react';
 import { updateSettings, resetTransactionData, createUser, updateUser, deleteUser, createLog } from '@/lib/actions';
@@ -55,7 +55,7 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ initialSettings, initialUse
       }
       setShowUserModal(false);
       setEditingUser(null);
-    } catch (error) {
+    } catch {
       alert('Erro ao processar usuário.');
     } finally {
       setIsLoading(false);

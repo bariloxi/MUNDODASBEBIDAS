@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { User, Search, CheckCircle2, ChevronRight, X, Plus, UserPlus, Loader2, Phone, MapPin, Save, FileText } from 'lucide-react';
+import { User, Search, CheckCircle2, ChevronRight, Plus, UserPlus, Loader2, Phone, MapPin, Save, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getClients, createClientQuick, getClientPendingSales } from '@/lib/actions';
 
@@ -67,7 +67,7 @@ export function ClientSelector({ selectedClient, onSelect }: ClientSelectorProps
       } else {
         setError(res.error || 'Erro ao cadastrar cliente');
       }
-    } catch (err) {
+    } catch {
       setError('Algo deu errado. Tente novamente.');
     } finally {
       setIsSubmitting(false);
@@ -299,10 +299,10 @@ export function ClientSelector({ selectedClient, onSelect }: ClientSelectorProps
                               const win = window.open('', '_blank');
                               if (win) {
                                 let allItemsHtml = '';
-                                sales.forEach((sale: any) => {
+                                sales.forEach((sale) => {
                                   allItemsHtml += `<div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
                                     <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px;">Venda #${sale.id.toString().padStart(4, '0')} - ${new Date(sale.createdAt).toLocaleDateString('pt-BR')}</div>
-                                    ${sale.items.map((item: any) => `
+                                    ${sale.items.map((item) => `
                                       <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
                                         <div style="flex: 1;">${item.quantity}x ${item.product.name} ${item.product.volume || ''}</div>
                                         <div style="text-align: right;">R$ ${(item.price * item.quantity).toFixed(2)}</div>
@@ -311,7 +311,7 @@ export function ClientSelector({ selectedClient, onSelect }: ClientSelectorProps
                                     <div style="text-align: right; font-weight: bold; margin-top: 5px;">Subtotal: R$ ${sale.total.toFixed(2)}</div>
                                   </div>`;
                                 });
-                                const totalAll = sales.reduce((acc: number, s: any) => acc + s.total, 0);
+                                const totalAll = sales.reduce((acc: number, s) => acc + s.total, 0);
                                 win.document.write(`<html><head><title>Relatório - ${client.name}</title></head><body style="font-family:sans-serif;padding:40px;"><h1>MUNDO DAS BEBIDAS</h1><h2>RELATÓRIO DE PENDÊNCIAS: ${client.name.toUpperCase()}</h2><div>${allItemsHtml}</div><div style="margin-top:30px;font-size:20px;font-weight:bold;">TOTAL DEVIDO: R$ ${totalAll.toFixed(2)}</div><script>window.onload=()=>window.print();</script></body></html>`);
                                 win.document.close();
                               }

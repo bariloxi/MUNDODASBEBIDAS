@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { UserPlus, Phone, MapPin, Users, FileText } from 'lucide-react';
+import { UserPlus, Phone, MapPin, Users } from 'lucide-react';
 import SearchInput from '@/components/SearchInput';
 import ClientActions from '@/components/ClientActions';
 import DebtManager from '@/components/DebtManager';

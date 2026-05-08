@@ -1,12 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { 
-  Search, 
   Filter, 
   Plus, 
   Package, 
-  AlertTriangle,
-  ChevronRight,
   Archive,
   Layers,
   BarChart3,

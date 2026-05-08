@@ -13,8 +13,7 @@ import {
   BarChart3, 
   Wallet, 
   Settings,
-  LogOut,
-  ChevronRight
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from './Logo';

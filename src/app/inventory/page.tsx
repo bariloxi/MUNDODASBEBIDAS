@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClipboardList, TrendingDown, Package, AlertCircle, Search, ArrowRight, History } from 'lucide-react';
+import { ClipboardList, TrendingDown, Package, AlertCircle, History } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import StockAdjuster from '@/components/StockAdjuster';
 import SearchInput from '@/components/SearchInput';

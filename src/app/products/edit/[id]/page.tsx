@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { getCategories, getProduct, updateProduct } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 

@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MoreVertical, Edit2, Trash2, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { deleteProduct } from '@/lib/actions';
-import { cn } from '@/lib/utils';
 
 interface ProductActionsProps {
   productId: number;

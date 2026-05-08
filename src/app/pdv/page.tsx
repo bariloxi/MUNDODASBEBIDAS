@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCart, Product } from '@/hooks/useCart';
 import { useToast } from '@/components/Toast';
 import { completeSale } from '@/lib/actions';
@@ -46,27 +46,22 @@ const PDVPage = () => {
     addToCart(product);
   };
 
-  const handleFinalize = async () => {
+  const handleFinalize = useCallback(async () => {
     if (cart.length === 0) return;
-
     if (paymentMethod === 'RECEBER_DEPOIS' && !selectedClient) {
       showToast('Selecione um cliente para venda a prazo', 'error');
       return;
     }
-
     if (paymentMethod === 'RECEBER_DEPOIS' && !dueDate) {
       showToast('Selecione uma data de vencimento', 'error');
       return;
     }
-
     if (paymentMethod === 'DINHEIRO' && typeof amountReceived === 'number' && amountReceived < total) {
       showToast('Valor recebido é menor que o total', 'error');
       return;
     }
-
     setIsLoading(true);
     showToast('Processando venda...', 'loading');
-
     try {
       const res = await completeSale({
         userId: 1, // Em um cenário real, pegar do contexto de auth
@@ -81,7 +76,6 @@ const PDVPage = () => {
           price: item.sellPrice
         }))
       });
-
       if (res.success && res.sale) {
         setLastSaleId(res.sale.id);
         setIsSuccess(true);
@@ -90,7 +84,6 @@ const PDVPage = () => {
         setSelectedClient(null);
         setDueDate('');
         showToast('Venda finalizada com sucesso!', 'success');
-
         // Auto-reset success message after 30s
         setTimeout(() => setIsSuccess(false), 30000);
       } else {
@@ -102,7 +95,7 @@ const PDVPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [cart, total, paymentMethod, selectedClient, dueDate, amountReceived, discount, showToast, clearCart]);
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -114,7 +107,7 @@ const PDVPage = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cart, total, paymentMethod, selectedClient, dueDate, amountReceived]); // Dependencies for closure
+  }, [handleFinalize]); // Dependencies for closure
 
   return (
     <div className="h-[calc(100vh-140px)] flex gap-8 pb-6 animate-in fade-in duration-500">

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { ShoppingCart, Trash2, Plus, Minus, CheckCircle2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { CartItem } from '@/hooks/useCart';
 import InvoiceAction from '@/components/InvoiceAction';
 import CancelSaleAction from '@/components/CancelSaleAction';

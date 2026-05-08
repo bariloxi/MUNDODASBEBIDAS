@@ -1,13 +1,9 @@
 import React from 'react';
-import Link from 'next/link';
 import { 
   BarChart3, 
   TrendingUp, 
-  Calendar, 
-  Download, 
   DollarSign, 
   PieChart,
-  ArrowRight,
   Sparkles,
   Zap,
   Target

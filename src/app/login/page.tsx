@@ -22,7 +22,7 @@ export default function LoginPage() {
       } else {
         setError(res.error || 'Erro ao autenticar');
       }
-    } catch (err) {
+    } catch {
       setError('Algo deu errado. Tente novamente.');
     } finally {
       setIsLoading(false);

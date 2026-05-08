@@ -24,10 +24,10 @@ export default function DebtReportButton({ clientId, clientName }: DebtReportBut
       const win = window.open('', '_blank');
       if (win) {
         let allItemsHtml = '';
-        sales.forEach((sale: any) => {
+        sales.forEach((sale) => {
           allItemsHtml += `<div style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px;">Venda #${sale.id.toString().padStart(4, '0')} - ${new Date(sale.createdAt).toLocaleDateString('pt-BR')}</div>
-            ${sale.items.map((item: any) => `
+            ${sale.items.map((item) => `
               <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
                 <div style="flex: 1;">${item.quantity}x ${item.product.name} ${item.product.volume || ''}</div>
                 <div style="text-align: right;">R$ ${(item.price * item.quantity).toFixed(2)}</div>
@@ -37,7 +37,7 @@ export default function DebtReportButton({ clientId, clientName }: DebtReportBut
           </div>`;
         });
 
-        const totalAll = sales.reduce((acc: number, s: any) => acc + s.total, 0);
+        const totalAll = sales.reduce((acc: number, s) => acc + s.total, 0);
 
         win.document.write(`
           <html>

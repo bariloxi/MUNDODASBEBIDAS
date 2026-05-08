@@ -8,13 +8,9 @@ import {
   CreditCard,
   Banknote,
   QrCode,
-  TrendingUp,
   Receipt,
-  PieChart,
-  ArrowRight
+  PieChart
 } from 'lucide-react';
-import { prisma } from '@/lib/prisma';
-import ExpenseForm from '@/components/ExpenseForm';
 import { getExpenses, getSales } from '@/lib/actions';
 import { cn } from '@/lib/utils';
 import InvoiceAction from '@/components/InvoiceAction';

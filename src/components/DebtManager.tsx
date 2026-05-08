@@ -50,7 +50,7 @@ const DebtManager: React.FC<DebtManagerProps> = ({ clientId, clientName, totalDe
     setIsLoading(true);
     try {
       const data = await getClientPendingSales(clientId);
-      setSales(data as any);
+      setSales(data as Sale[]);
     } catch (error) {
       console.error('Erro ao buscar débitos:', error);
     } finally {
@@ -66,7 +66,7 @@ const DebtManager: React.FC<DebtManagerProps> = ({ clientId, clientName, totalDe
       if (sales.length <= 1) {
          // If last one, we might want to close or just show empty
       }
-    } catch (error) {
+    } catch {
       alert('Erro ao atualizar status do pagamento.');
     } finally {
       setProcessingId(null);
@@ -83,7 +83,7 @@ const DebtManager: React.FC<DebtManagerProps> = ({ clientId, clientName, totalDe
       }
       setSales([]);
       setTimeout(() => setIsOpen(false), 1000);
-    } catch (error) {
+    } catch {
       alert('Erro ao processar pagamentos.');
     } finally {
       setIsLoading(false);

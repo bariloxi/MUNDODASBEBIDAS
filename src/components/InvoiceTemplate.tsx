@@ -1,8 +1,6 @@
 'use client';
 
 import React from 'react';
-import { cn } from '@/lib/utils';
-import { QRCodeSVG } from 'qrcode.react';
 
 import { InvoiceWithSale } from '@/lib/types';
 
@@ -11,7 +9,6 @@ interface InvoiceTemplateProps {
 }
 
 export default function InvoiceTemplate({ data }: InvoiceTemplateProps) {
-  const subtotal = data.sale.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const otherPendingSales = data.sale.client?.sales || [];
   const otherTotal = otherPendingSales.reduce((acc, sale) => acc + sale.total, 0);
 

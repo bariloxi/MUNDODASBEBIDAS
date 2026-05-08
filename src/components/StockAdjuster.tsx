@@ -22,7 +22,7 @@ const StockAdjuster: React.FC<StockAdjusterProps> = ({ productId, initialStock }
       } else {
         alert(result.error);
       }
-    } catch (error) {
+    } catch {
       alert('Erro ao atualizar estoque.');
     } finally {
       setIsLoading(false);
