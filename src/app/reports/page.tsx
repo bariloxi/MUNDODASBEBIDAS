@@ -13,18 +13,12 @@ import { prisma } from '@/lib/prisma';
 import { cn } from '@/lib/utils';
 
 async function getReportData() {
-  const now = new Date();
-  
-  // Start of periods (using UTC to avoid local timezone issues on server)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const startOfDay = today;
-  
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
-  
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  // Simplified date logic for build compatibility
+  const d = new Date();
+  const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const startOfWeek = new Date(startOfDay);
+  startOfWeek.setDate(startOfDay.getDate() - startOfDay.getDay());
+  const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1);
 
   const [
     totalSalesCount, 
