@@ -213,8 +213,8 @@ const ReportsPage = async () => {
         ))}
       </div>
 
-      {/* KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* KPI Grid - Escondido na impressão para evitar redundância */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 print:hidden">
         {[
           { 
             label: 'Receita Bruta', 
