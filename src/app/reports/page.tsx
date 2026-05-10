@@ -15,15 +15,16 @@ import { cn } from '@/lib/utils';
 async function getReportData() {
   const now = new Date();
   
-  // Start of periods (using local time of the server/process)
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // Start of periods (using UTC to avoid local timezone issues on server)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
-  startOfWeek.setHours(0, 0, 0, 0);
+  const startOfDay = today;
   
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+  
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
   const [
     totalSalesCount, 
