@@ -13,29 +13,75 @@ import { prisma } from '@/lib/prisma';
 import { cn } from '@/lib/utils';
 
 async function getReportData() {
-  const totalSalesCount = await prisma.sale.count();
-  const sales = await prisma.sale.findMany({
-    include: {
-      items: {
-        include: {
-          product: {
-            include: {
-              category: true
+  const now = new Date();
+  
+  // Start of periods (using local time of the server/process)
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+  startOfWeek.setHours(0, 0, 0, 0);
+  
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const [
+    totalSalesCount, 
+    sales, 
+    products, 
+    dailySales, 
+    weeklySales, 
+    monthlySales
+  ] = await Promise.all([
+    prisma.sale.count({ where: { status: 'CONCLUIDA' } }),
+    prisma.sale.findMany({
+      where: { status: 'CONCLUIDA' },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                category: true
+              }
             }
           }
         }
       }
-    }
-  });
-
-  const products = await prisma.product.findMany({
-    include: {
-      category: true,
-      saleItems: true
-    }
-  });
+    }),
+    prisma.product.findMany({
+      include: {
+        category: true,
+        saleItems: {
+          include: {
+            sale: true
+          }
+        }
+      }
+    }),
+    prisma.sale.findMany({
+      where: {
+        status: 'CONCLUIDA',
+        createdAt: { gte: startOfDay }
+      }
+    }),
+    prisma.sale.findMany({
+      where: {
+        status: 'CONCLUIDA',
+        createdAt: { gte: startOfWeek }
+      }
+    }),
+    prisma.sale.findMany({
+      where: {
+        status: 'CONCLUIDA',
+        createdAt: { gte: startOfMonth }
+      }
+    })
+  ]);
 
   const revenue = sales.reduce((acc, sale) => acc + sale.total, 0);
+  const dailyRevenue = dailySales.reduce((acc, s) => acc + s.total, 0);
+  const weeklyRevenue = weeklySales.reduce((acc, s) => acc + s.total, 0);
+  const monthlyRevenue = monthlySales.reduce((acc, s) => acc + s.total, 0);
   
   // Calculate category sales for market share
   const catSales: Record<string, number> = {};
@@ -53,7 +99,11 @@ async function getReportData() {
 
   // Detailed inventory and sales data
   const inventoryReport = products.map(product => {
-    const unitsSold = product.saleItems.reduce((acc, item) => acc + item.quantity, 0);
+    // Only count items from non-cancelled sales
+    const unitsSold = product.saleItems
+      .filter(item => item.sale.status === 'CONCLUIDA')
+      .reduce((acc, item) => acc + item.quantity, 0);
+      
     return {
       id: product.id,
       name: product.name,
@@ -72,6 +122,9 @@ async function getReportData() {
   return {
     totalSales: totalSalesCount,
     totalRevenue: revenue,
+    dailyRevenue,
+    weeklyRevenue,
+    monthlyRevenue,
     profit: revenue * 0.35,
     categoryData,
     inventoryReport,
@@ -81,37 +134,54 @@ async function getReportData() {
   };
 }
 
+
 const ReportsPage = async () => {
   const data = await getReportData();
 
   return (
     <div className="space-y-8 pb-10">
-      {/* Print-only Header */}
-      <div className="hidden print:block mb-8 border-b-2 border-black pb-4">
-        <div className="flex justify-between items-end">
+      {/* Print-only Header - Redesenhado para ser compacto e informativo */}
+      <div className="hidden print:block mb-8">
+        <div className="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
           <div>
-            <h1 className="text-4xl font-black text-black tracking-tighter uppercase">Mundo das Bebidas Disk</h1>
-            <p className="text-sm font-bold text-slate-600 uppercase tracking-widest">Relatório Operacional de Estoque e Vendas</p>
+            <h1 className="text-2xl font-black text-black uppercase tracking-tighter">Mundo das Bebidas Disk</h1>
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">Relatório Consolidado de Vendas e Giro de Estoque</p>
           </div>
           <div className="text-right">
-            <p className="text-xs font-bold text-slate-500 uppercase">Gerado em</p>
-            <p className="text-sm font-bold text-black">{new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeStyle: 'short' }).format(new Date())}</p>
+            <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Gerado em</p>
+            <p className="text-[10px] font-black text-black">{new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeStyle: 'short' }).format(new Date())}</p>
           </div>
         </div>
         
-        {/* Print Summary Bar */}
-        <div className="mt-6 grid grid-cols-3 gap-4 border-t border-slate-200 pt-6">
-          <div className="border border-slate-900 p-4">
-            <p className="text-[10px] font-black uppercase text-slate-500">Total Vendido (Periodo)</p>
-            <p className="text-2xl font-black text-black">{data.totalUnitsSold} <span className="text-xs">unidades</span></p>
+        {/* Bloco de Performance Financeira (Dia, Semana, Mês) */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="bg-slate-50 border border-slate-200 p-3 rounded-none">
+            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas Hoje</p>
+            <p className="text-lg font-black text-black">R$ {data.dailyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
-          <div className="border border-slate-900 p-4">
-            <p className="text-[10px] font-black uppercase text-slate-500">Total em Estoque</p>
-            <p className="text-2xl font-black text-black">{data.totalStock} <span className="text-xs">unidades</span></p>
+          <div className="bg-slate-50 border border-slate-200 p-3 rounded-none">
+            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas na Semana</p>
+            <p className="text-lg font-black text-black">R$ {data.weeklyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
-          <div className="border border-slate-900 p-4">
-            <p className="text-[10px] font-black uppercase text-slate-500">Receita Total</p>
-            <p className="text-2xl font-black text-black">R$ {data.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+          <div className="bg-slate-50 border border-slate-200 p-3 rounded-none">
+            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas no Mês</p>
+            <p className="text-lg font-black text-black">R$ {data.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+          </div>
+        </div>
+
+        {/* Resumo Operacional */}
+        <div className="grid grid-cols-3 gap-2 border-y border-slate-100 py-4 mb-6">
+          <div className="text-center">
+            <p className="text-[7px] font-bold text-slate-500 uppercase">Qtd Vendida</p>
+            <p className="text-sm font-black text-black">{data.totalUnitsSold} un</p>
+          </div>
+          <div className="text-center border-x border-slate-100">
+            <p className="text-[7px] font-bold text-slate-500 uppercase">Saldo em Estoque</p>
+            <p className="text-sm font-black text-black">{data.totalStock} un</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[7px] font-bold text-slate-500 uppercase">Faturamento Geral</p>
+            <p className="text-sm font-black text-black">R$ {data.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
       </div>
@@ -128,6 +198,25 @@ const ReportsPage = async () => {
         </div>
         <PrintButton label="Exportar PDF/Relatório" />
       </header>
+
+      {/* Sales Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:hidden">
+        {[
+          { label: 'Vendas Hoje', value: data.dailyRevenue, color: 'text-emerald-400', icon: TrendingUp },
+          { label: 'Vendas na Semana', value: data.weeklyRevenue, color: 'text-sky-400', icon: BarChart3 },
+          { label: 'Vendas no Mês', value: data.monthlyRevenue, color: 'text-indigo-400', icon: DollarSign },
+        ].map((item, i) => (
+          <div key={i} className="premium-card group hover:border-primary/20 transition-all">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{item.label}</h3>
+              <item.icon size={14} className={item.color} />
+            </div>
+            <p className={cn("text-2xl font-black tracking-tight text-white")}>
+              R$ {item.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+        ))}
+      </div>
 
       {/* KPI Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -192,36 +281,36 @@ const ReportsPage = async () => {
 
         <table className="w-full border-collapse border border-slate-900">
           <thead>
-            <tr className="bg-slate-100 border-b-2 border-slate-900">
-              <th className="px-4 py-2 text-left text-[10px] font-black uppercase">Produto</th>
-              <th className="px-4 py-2 text-center text-[10px] font-black uppercase">Qtd Vendida</th>
-              <th className="px-4 py-2 text-center text-[10px] font-black uppercase">Restante</th>
-              <th className="px-4 py-2 text-right text-[10px] font-black uppercase">Ref Giro</th>
+            <tr className="bg-slate-50 border-b border-slate-900">
+              <th className="px-2 py-1 text-left text-[7px] font-black uppercase">Produto</th>
+              <th className="px-2 py-1 text-center text-[7px] font-black uppercase">Qtd Vendida</th>
+              <th className="px-2 py-1 text-center text-[7px] font-black uppercase">Restante</th>
+              <th className="px-2 py-1 text-right text-[7px] font-black uppercase">Ref</th>
             </tr>
           </thead>
           <tbody>
             {data.inventoryReport.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400 font-bold uppercase text-[10px]">
+                <td colSpan={4} className="px-2 py-4 text-center text-slate-400 font-bold uppercase text-[8px]">
                   Nenhum produto cadastrado no sistema
                 </td>
               </tr>
             ) : (
               data.inventoryReport.map(item => (
-                <tr key={item.id} className="border-b border-slate-200">
-                  <td className="px-4 py-3">
-                    <p className="text-sm font-black text-black uppercase">{item.name}</p>
-                    <p className="text-[10px] font-bold text-slate-500">{item.brand} - {item.volume}</p>
+                <tr key={item.id} className="border-b border-slate-100">
+                  <td className="px-2 py-0.5 leading-tight">
+                    <p className="text-[8px] font-black text-black uppercase">{item.name}</p>
+                    <p className="text-[6px] font-bold text-slate-400">{item.brand} - {item.volume}</p>
                   </td>
-                  <td className="px-4 py-3 text-center border-x border-slate-200">
-                    <span className="text-sm font-black text-black">{item.sold} un</span>
+                  <td className="px-2 py-0.5 text-center border-x border-slate-50">
+                    <span className="text-[8px] font-black text-black">{item.sold} un</span>
                   </td>
-                  <td className="px-4 py-3 text-center border-r border-slate-200">
-                    <span className="text-sm font-bold text-slate-600">{item.stock} un</span>
+                  <td className="px-2 py-0.5 text-center border-r border-slate-50">
+                    <span className="text-[8px] font-bold text-slate-600">{item.stock} un</span>
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="inline-block px-2 py-0.5 border border-black text-[8px] font-black">
-                      {item.sold > item.stock ? 'ALTO GIRO' : 'REGULAR'}
+                  <td className="px-2 py-0.5 text-right">
+                    <div className="inline-block px-1 border border-slate-200 text-[6px] font-black text-slate-500">
+                      {item.sold > item.stock ? 'GIRO ALTO' : 'REGULAR'}
                     </div>
                   </td>
                 </tr>

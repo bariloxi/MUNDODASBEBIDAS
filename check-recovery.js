@@ -2,7 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: "postgresql://neondb_owner:npg_jvGzPhds17OL@ep-sparkling-hall-anwnr2lv-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require"
+      url: "postgresql://neondb_owner:npg_jvGzPhds17OL@ep-green-sea-ank4x0r5-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require"
     }
   }
 });

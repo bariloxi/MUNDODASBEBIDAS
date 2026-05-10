@@ -726,12 +726,17 @@ export async function logout() {
 }
 
 export async function getCurrentUser() {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get('session')?.value;
+  try {
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get('session')?.value;
 
-  if (!sessionId) return null;
+    if (!sessionId) return null;
 
-  return await prisma.user.findUnique({
-    where: { id: parseInt(sessionId) }
-  });
+    return await prisma.user.findUnique({
+      where: { id: parseInt(sessionId) }
+    });
+  } catch (error) {
+    console.error('FAILED TO GET CURRENT USER:', error);
+    return null;
+  }
 }

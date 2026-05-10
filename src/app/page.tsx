@@ -8,43 +8,57 @@ import {
   ArrowDownRight, 
   Calendar,
   Clock,
-  ChevronRight
+  ChevronRight,
+  ShieldAlert
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 async function getDashboardData() {
-  const totalSales = await prisma.sale.aggregate({
-    _sum: { total: true },
-    _count: true
-  });
-  
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const salesToday = await prisma.sale.aggregate({
-    where: { createdAt: { gte: today } },
-    _sum: { total: true }
-  });
+  try {
+    const totalSales = await prisma.sale.aggregate({
+      _sum: { total: true },
+      _count: true
+    });
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const salesToday = await prisma.sale.aggregate({
+      where: { createdAt: { gte: today } },
+      _sum: { total: true }
+    });
 
-  const lowStockCount = await prisma.product.count({
-    where: { stock: { lte: 10 } }
-  });
+    const lowStockCount = await prisma.product.count({
+      where: { stock: { lte: 10 } }
+    });
 
-  const recentSales = await prisma.sale.findMany({
-    take: 6,
-    orderBy: { createdAt: 'desc' },
-    include: { items: true, client: true }
-  });
+    const recentSales = await prisma.sale.findMany({
+      take: 6,
+      orderBy: { createdAt: 'desc' },
+      include: { items: true, client: true }
+    });
 
-  return {
-    totalRevenue: totalSales._sum.total || 0,
-    totalCount: totalSales._count || 0,
-    todayRevenue: salesToday._sum.total || 0,
-    lowStockCount,
-    recentSales
-  };
+    return {
+      totalRevenue: totalSales._sum.total || 0,
+      totalCount: totalSales._count || 0,
+      todayRevenue: salesToday._sum.total || 0,
+      lowStockCount,
+      recentSales,
+      error: null
+    };
+  } catch (error) {
+    console.error('DASHBOARD DATA ERROR:', error);
+    return {
+      totalRevenue: 0,
+      totalCount: 0,
+      todayRevenue: 0,
+      lowStockCount: 0,
+      recentSales: [],
+      error: 'Erro de conexão com o banco de dados'
+    };
+  }
 }
 
 const Dashboard = async () => {
@@ -87,6 +101,13 @@ const Dashboard = async () => {
 
   return (
     <div className="space-y-8 pb-10">
+      {data.error && (
+        <div className="p-4 bg-danger/10 border border-danger/20 text-danger text-xs font-bold flex items-center gap-3 animate-pulse">
+          <ShieldAlert size={18} />
+          <span>ALERTA: CONEXÃO COM O BANCO DE DADOS INTERROMPIDA. ALGUNS DADOS PODEM ESTAR DESATUALIZADOS.</span>
+        </div>
+      )}
+
       {/* Header - Simples e Sem Sobreposição */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
