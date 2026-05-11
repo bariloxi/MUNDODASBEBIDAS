@@ -27,17 +27,32 @@ async function getReportData() {
 
     const revenue = sales.reduce((acc, sale) => acc + sale.total, 0);
     
-    // Most basic date logic possible
     const now = new Date();
-    const dStr = now.toISOString().split('T')[0];
     
+    // Início do dia (hoje)
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    // Início da semana (Domingo)
+    const startOfWeek = new Date(now);
+    startOfWeek.setHours(0, 0, 0, 0);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+
+    // Início do mês
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
     const dailyRevenue = sales
-      .filter(s => s.createdAt.toISOString().startsWith(dStr))
+      .filter(s => s.createdAt >= startOfDay)
       .reduce((acc, s) => acc + s.total, 0);
-      
-    // Simplified weekly/monthly for stability
-    const weeklyRevenue = dailyRevenue * 1.2; // Fallback or simplified logic if needed, but let's try to keep it real
-    const monthlyRevenue = revenue;
+
+    const weeklyRevenue = sales
+      .filter(s => s.createdAt >= startOfWeek)
+      .reduce((acc, s) => acc + s.total, 0);
+
+    const monthlyRevenue = sales
+      .filter(s => s.createdAt >= startOfMonth)
+      .reduce((acc, s) => acc + s.total, 0);
 
     const inventoryReport = products.map(product => {
       const unitsSold = product.saleItems.reduce((acc, item) => acc + item.quantity, 0);
