@@ -13,92 +13,126 @@ import { prisma } from '@/lib/prisma';
 import { cn } from '@/lib/utils';
 
 async function getReportData() {
-  try {
-    const [totalSalesCount, sales, products] = await Promise.all([
-      prisma.sale.count(),
-      prisma.sale.findMany(),
-      prisma.product.findMany({
-        include: {
-          category: true,
-          saleItems: true
+  const now = new Date();
+  
+  // Start of periods (using local time of the server/process)
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+  startOfWeek.setHours(0, 0, 0, 0);
+  
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const [
+    totalSalesCount, 
+    sales, 
+    products, 
+    dailySales, 
+    weeklySales, 
+    monthlySales
+  ] = await Promise.all([
+    prisma.sale.count({ where: { status: 'CONCLUIDA' } }),
+    prisma.sale.findMany({
+      where: { status: 'CONCLUIDA' },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                category: true
+              }
+            }
+          }
         }
-      })
-    ]);
+      }
+    }),
+    prisma.product.findMany({
+      include: {
+        category: true,
+        saleItems: {
+          include: {
+            sale: true
+          }
+        }
+      }
+    }),
+    prisma.sale.findMany({
+      where: {
+        status: 'CONCLUIDA',
+        createdAt: { gte: startOfDay }
+      }
+    }),
+    prisma.sale.findMany({
+      where: {
+        status: 'CONCLUIDA',
+        createdAt: { gte: startOfWeek }
+      }
+    }),
+    prisma.sale.findMany({
+      where: {
+        status: 'CONCLUIDA',
+        createdAt: { gte: startOfMonth }
+      }
+    })
+  ]);
 
-    const revenue = sales.reduce((acc, sale) => acc + sale.total, 0);
-    
-    const now = new Date();
-    
-    // Início do dia (hoje)
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
+  const revenue = sales.reduce((acc, sale) => acc + sale.total, 0);
+  const dailyRevenue = dailySales.reduce((acc, s) => acc + s.total, 0);
+  const weeklyRevenue = weeklySales.reduce((acc, s) => acc + s.total, 0);
+  const monthlyRevenue = monthlySales.reduce((acc, s) => acc + s.total, 0);
+  
+  // Calculate category sales for market share
+  const catSales: Record<string, number> = {};
+  sales.forEach(sale => {
+    sale.items.forEach(item => {
+      const catName = item.product.category?.name || 'Diversos';
+      catSales[catName] = (catSales[catName] || 0) + (item.price * item.quantity);
+    });
+  });
 
-    // Início da semana (Domingo)
-    const startOfWeek = new Date(now);
-    startOfWeek.setHours(0, 0, 0, 0);
-    startOfWeek.setDate(now.getDate() - now.getDay());
+  const categoryData = Object.entries(catSales).map(([label, amount]) => ({
+    label,
+    val: revenue > 0 ? Math.round((amount / revenue) * 100) : 0
+  })).sort((a, b) => b.val - a.val).slice(0, 4);
 
-    // Início do mês
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    startOfMonth.setHours(0, 0, 0, 0);
-
-    const dailyRevenue = sales
-      .filter(s => s.createdAt >= startOfDay)
-      .reduce((acc, s) => acc + s.total, 0);
-
-    const weeklyRevenue = sales
-      .filter(s => s.createdAt >= startOfWeek)
-      .reduce((acc, s) => acc + s.total, 0);
-
-    const monthlyRevenue = sales
-      .filter(s => s.createdAt >= startOfMonth)
-      .reduce((acc, s) => acc + s.total, 0);
-
-    const inventoryReport = products.map(product => {
-      const unitsSold = product.saleItems.reduce((acc, item) => acc + item.quantity, 0);
-      return {
-        id: product.id,
-        name: product.name,
-        brand: product.brand,
-        volume: product.volume,
-        stock: product.stock,
-        sold: unitsSold,
-        status: product.stock <= product.minStock ? 'CRITICO' : 'ESTAVEL'
-      };
-    }).sort((a, b) => b.sold - a.sold);
-
+  // Detailed inventory and sales data
+  const inventoryReport = products.map(product => {
+    // Only count items from non-cancelled sales
+    const unitsSold = product.saleItems
+      .filter(item => item.sale.status === 'CONCLUIDA')
+      .reduce((acc, item) => acc + item.quantity, 0);
+      
     return {
-      totalSales: totalSalesCount,
-      totalRevenue: revenue,
-      dailyRevenue: dailyRevenue,
-      weeklyRevenue: weeklyRevenue, // Simplified for now to ensure build
-      monthlyRevenue: monthlyRevenue,
-      profit: revenue * 0.3,
-      categoryData: [],
-      inventoryReport,
-      totalUnitsSold: inventoryReport.reduce((acc, i) => acc + i.sold, 0),
-      totalStock: inventoryReport.reduce((acc, i) => acc + i.stock, 0),
-      soldOnly: inventoryReport.filter(i => i.sold > 0)
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      volume: product.volume,
+      stock: product.stock,
+      sold: unitsSold,
+      status: product.stock <= product.minStock ? 'CRITICO' : product.stock <= product.minStock * 2 ? 'ALERTA' : 'ESTAVEL'
     };
-  } catch (error) {
-    console.error("Error in getReportData:", error);
-    return {
-      totalSales: 0,
-      totalRevenue: 0,
-      dailyRevenue: 0,
-      weeklyRevenue: 0,
-      monthlyRevenue: 0,
-      profit: 0,
-      categoryData: [],
-      inventoryReport: [],
-      totalUnitsSold: 0,
-      totalStock: 0,
-      soldOnly: []
-    };
-  }
+  }).sort((a, b) => b.sold - a.sold);
+
+  const totalUnitsSold = inventoryReport.reduce((acc, item) => acc + item.sold, 0);
+  const totalStock = inventoryReport.reduce((acc, item) => acc + item.stock, 0);
+  const soldOnly = inventoryReport.filter(item => item.sold > 0);
+
+  return {
+    totalSales: totalSalesCount,
+    totalRevenue: revenue,
+    dailyRevenue,
+    weeklyRevenue,
+    monthlyRevenue,
+    profit: revenue * 0.35,
+    categoryData,
+    inventoryReport,
+    totalUnitsSold,
+    totalStock,
+    soldOnly
+  };
 }
-
-
 
 
 const ReportsPage = async () => {
@@ -130,7 +164,7 @@ const ReportsPage = async () => {
             <p className="text-lg font-black text-black">R$ {data.weeklyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
           <div className="bg-slate-50 border border-slate-200 p-3 rounded-none">
-            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas no Mês</p>
+            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas no M├¬s</p>
             <p className="text-lg font-black text-black">R$ {data.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
@@ -170,7 +204,7 @@ const ReportsPage = async () => {
         {[
           { label: 'Vendas Hoje', value: data.dailyRevenue, color: 'text-emerald-400', icon: TrendingUp },
           { label: 'Vendas na Semana', value: data.weeklyRevenue, color: 'text-sky-400', icon: BarChart3 },
-          { label: 'Vendas no Mês', value: data.monthlyRevenue, color: 'text-indigo-400', icon: DollarSign },
+          { label: 'Vendas no M├¬s', value: data.monthlyRevenue, color: 'text-indigo-400', icon: DollarSign },
         ].map((item, i) => (
           <div key={i} className="premium-card group hover:border-primary/20 transition-all">
             <div className="flex justify-between items-center mb-4">
@@ -184,8 +218,8 @@ const ReportsPage = async () => {
         ))}
       </div>
 
-      {/* KPI Grid - Escondido na impressão para evitar redundância */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 print:hidden">
+      {/* KPI Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { 
             label: 'Receita Bruta', 
@@ -242,7 +276,7 @@ const ReportsPage = async () => {
       <div className="hidden print:block mt-8 space-y-6">
         <div className="border-l-4 border-black pl-4">
           <h2 className="text-xl font-black text-black uppercase tracking-tight">Detalhamento de Bebidas Vendidas</h2>
-          <p className="text-xs text-slate-500 font-bold uppercase">Listagem de itens com movimentação no período</p>
+          <p className="text-xs text-slate-500 font-bold uppercase">Listagem de itens com movimenta├º├úo no per├¡odo</p>
         </div>
 
         <table className="w-full border-collapse border border-slate-900">
@@ -295,9 +329,9 @@ const ReportsPage = async () => {
               Controle de Estoque e Vendas por Item
             </h2>
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase print:hidden">
-              <span className="flex items-center gap-1"><div className="w-2 h-2 bg-success rounded-full"></div> Estável</span>
+              <span className="flex items-center gap-1"><div className="w-2 h-2 bg-success rounded-full"></div> Est├ível</span>
               <span className="flex items-center gap-1"><div className="w-2 h-2 bg-warning rounded-full"></div> Alerta</span>
-              <span className="flex items-center gap-1"><div className="w-2 h-2 bg-danger rounded-full"></div> Crítico</span>
+              <span className="flex items-center gap-1"><div className="w-2 h-2 bg-danger rounded-full"></div> Cr├¡tico</span>
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -402,9 +436,9 @@ const ReportsPage = async () => {
                 <Zap size={10} fill="currentColor" />
                 Insight Ativo
               </div>
-              <h3 className="text-2xl font-bold text-white tracking-tight">Otimização de Estoque</h3>
+              <h3 className="text-2xl font-bold text-white tracking-tight">Otimiza├º├úo de Estoque</h3>
               <p className="text-slate-400 text-xs max-w-[320px] leading-relaxed font-medium">
-                Sugerimos reposição de <span className="text-white font-bold">Heineken 600ml</span> baseado no volume de vendas atual.
+                Sugerimos reposi├º├úo de <span className="text-white font-bold">Heineken 600ml</span> baseado no volume de vendas atual.
               </p>
             </div>
           </div>
