@@ -81,7 +81,7 @@ export default async function ReportsPage() {
 
       <div className="flex justify-between items-center print:hidden">
         <h1 className="text-2xl font-black uppercase tracking-tighter">Relatórios</h1>
-        <PrintButton />
+        <PrintButton label="Exportar PDF" />
       </div>
 
       {/* Grid na Tela */}
