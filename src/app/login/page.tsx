@@ -55,8 +55,8 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-1">
-                <h1 className="text-2xl font-black text-white tracking-tight uppercase">Acesso Restrito</h1>
-                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Painel Administrativo v2.0</p>
+                <h1 className="text-2xl font-black text-white tracking-tight uppercase">Acesso Restrito v2.1</h1>
+                <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Painel Administrativo v2.1</p>
               </div>
             </div>
 
