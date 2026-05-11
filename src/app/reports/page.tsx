@@ -13,21 +13,8 @@ import { prisma } from '@/lib/prisma';
 import { cn } from '@/lib/utils';
 
 async function getReportData() {
-  // Simplified date logic for build compatibility
-  const d = new Date();
-  const startOfDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const startOfWeek = new Date(startOfDay);
-  startOfWeek.setDate(startOfDay.getDate() - startOfDay.getDay());
-  const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1);
-
-  const [
-    totalSalesCount, 
-    sales, 
-    products, 
-    dailySales, 
-    weeklySales, 
-    monthlySales
-  ] = await Promise.all([
+  // Fetch data in parallel
+  const [totalSalesCount, sales, products] = await Promise.all([
     prisma.sale.count({ where: { status: 'CONCLUIDA' } }),
     prisma.sale.findMany({
       where: { status: 'CONCLUIDA' },
@@ -52,31 +39,33 @@ async function getReportData() {
           }
         }
       }
-    }),
-    prisma.sale.findMany({
-      where: {
-        status: 'CONCLUIDA',
-        createdAt: { gte: startOfDay }
-      }
-    }),
-    prisma.sale.findMany({
-      where: {
-        status: 'CONCLUIDA',
-        createdAt: { gte: startOfWeek }
-      }
-    }),
-    prisma.sale.findMany({
-      where: {
-        status: 'CONCLUIDA',
-        createdAt: { gte: startOfMonth }
-      }
     })
   ]);
 
   const revenue = sales.reduce((acc, sale) => acc + sale.total, 0);
-  const dailyRevenue = dailySales.reduce((acc, s) => acc + s.total, 0);
-  const weeklyRevenue = weeklySales.reduce((acc, s) => acc + s.total, 0);
-  const monthlyRevenue = monthlySales.reduce((acc, s) => acc + s.total, 0);
+  
+  // Calculate periods in-memory to be safer and faster
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+  const startOfWeekTime = startOfWeek.getTime();
+  
+  const startOfMonthTime = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+  const dailyRevenue = sales
+    .filter(s => new Date(s.createdAt).getTime() >= startOfDay)
+    .reduce((acc, s) => acc + s.total, 0);
+    
+  const weeklyRevenue = sales
+    .filter(s => new Date(s.createdAt).getTime() >= startOfWeekTime)
+    .reduce((acc, s) => acc + s.total, 0);
+    
+  const monthlyRevenue = sales
+    .filter(s => new Date(s.createdAt).getTime() >= startOfMonthTime)
+    .reduce((acc, s) => acc + s.total, 0);
   
   // Calculate category sales for market share
   const catSales: Record<string, number> = {};
@@ -94,7 +83,6 @@ async function getReportData() {
 
   // Detailed inventory and sales data
   const inventoryReport = products.map(product => {
-    // Only count items from non-cancelled sales
     const unitsSold = product.saleItems
       .filter(item => item.sale.status === 'CONCLUIDA')
       .reduce((acc, item) => acc + item.quantity, 0);
@@ -128,6 +116,7 @@ async function getReportData() {
     soldOnly
   };
 }
+
 
 
 const ReportsPage = async () => {
