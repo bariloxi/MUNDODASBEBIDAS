@@ -321,7 +321,7 @@ const ReportsPage = async () => {
         </table>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 print:mt-12">
+      <div className="grid grid-cols-1 gap-8 print:mt-12 print:!hidden">
         {/* Detailed Inventory Control Table */}
         <div className="premium-card !p-0 overflow-hidden flex flex-col print:hidden">
           <div className="p-6 border-b border-border flex justify-between items-center bg-bg-secondary/20 print:bg-slate-100">
