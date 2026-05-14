@@ -140,7 +140,7 @@ const ReportsPage = async () => {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="bg-red-500 text-white p-2 text-center font-bold print:hidden">VERSÃO ATUALIZADA: 17:35</div>
+      <div className="bg-red-500 text-white p-2 text-center font-bold print:hidden">VERSÃO ATUALIZADA: 09:15</div>
       {/* Print-only Header - Redesenhado para ser compacto e informativo */}
       <div className="hidden print:block mb-8">
         <div className="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
