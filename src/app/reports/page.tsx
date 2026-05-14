@@ -323,7 +323,7 @@ const ReportsPage = async () => {
 
       <div className="grid grid-cols-1 gap-8 print:mt-12">
         {/* Detailed Inventory Control Table */}
-        <div className="premium-card !p-0 overflow-hidden flex flex-col">
+        <div className="premium-card !p-0 overflow-hidden flex flex-col print:hidden">
           <div className="p-6 border-b border-border flex justify-between items-center bg-bg-secondary/20 print:bg-slate-100">
             <h2 className="text-lg font-bold flex items-center gap-3 text-white print:text-black">
               <div className="p-1.5 rounded-none bg-primary/10 text-primary print:hidden"><BarChart3 size={18} /></div>
