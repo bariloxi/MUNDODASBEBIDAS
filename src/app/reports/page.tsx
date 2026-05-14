@@ -165,7 +165,7 @@ const ReportsPage = async () => {
             <p className="text-lg font-black text-black">R$ {data.weeklyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
           <div className="bg-slate-50 border border-slate-200 p-3 rounded-none">
-            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas no M├¬s</p>
+            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas no Mês</p>
             <p className="text-lg font-black text-black">R$ {data.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
@@ -205,7 +205,7 @@ const ReportsPage = async () => {
         {[
           { label: 'Vendas Hoje', value: data.dailyRevenue, color: 'text-emerald-400', icon: TrendingUp },
           { label: 'Vendas na Semana', value: data.weeklyRevenue, color: 'text-sky-400', icon: BarChart3 },
-          { label: 'Vendas no M├¬s', value: data.monthlyRevenue, color: 'text-indigo-400', icon: DollarSign },
+          { label: 'Vendas no Mês', value: data.monthlyRevenue, color: 'text-indigo-400', icon: DollarSign },
         ].map((item, i) => (
           <div key={i} className="premium-card group hover:border-primary/20 transition-all">
             <div className="flex justify-between items-center mb-4">
@@ -277,7 +277,7 @@ const ReportsPage = async () => {
       <div className="hidden print:block mt-8 space-y-6">
         <div className="border-l-4 border-black pl-4">
           <h2 className="text-xl font-black text-black uppercase tracking-tight">Detalhamento de Bebidas Vendidas</h2>
-          <p className="text-xs text-slate-500 font-bold uppercase">Listagem de itens com movimenta├º├úo no per├¡odo</p>
+          <p className="text-xs text-slate-500 font-bold uppercase">Listagem de itens com movimentação no período</p>
         </div>
 
         <table className="w-full border-collapse border border-slate-900">
@@ -330,9 +330,9 @@ const ReportsPage = async () => {
               Controle de Estoque e Vendas por Item
             </h2>
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase print:hidden">
-              <span className="flex items-center gap-1"><div className="w-2 h-2 bg-success rounded-full"></div> Est├ível</span>
+              <span className="flex items-center gap-1"><div className="w-2 h-2 bg-success rounded-full"></div> Estável</span>
               <span className="flex items-center gap-1"><div className="w-2 h-2 bg-warning rounded-full"></div> Alerta</span>
-              <span className="flex items-center gap-1"><div className="w-2 h-2 bg-danger rounded-full"></div> Cr├¡tico</span>
+              <span className="flex items-center gap-1"><div className="w-2 h-2 bg-danger rounded-full"></div> Crítico</span>
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -437,9 +437,9 @@ const ReportsPage = async () => {
                 <Zap size={10} fill="currentColor" />
                 Insight Ativo
               </div>
-              <h3 className="text-2xl font-bold text-white tracking-tight">Otimiza├º├úo de Estoque</h3>
+              <h3 className="text-2xl font-bold text-white tracking-tight">Otimização de Estoque</h3>
               <p className="text-slate-400 text-xs max-w-[320px] leading-relaxed font-medium">
-                Sugerimos reposi├º├úo de <span className="text-white font-bold">Heineken 600ml</span> baseado no volume de vendas atual.
+                Sugerimos reposição de <span className="text-white font-bold">Heineken 600ml</span> baseado no volume de vendas atual.
               </p>
             </div>
           </div>
