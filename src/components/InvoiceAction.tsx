@@ -110,7 +110,7 @@ export default function InvoiceAction({ saleId, initialInvoice, showButton = tru
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto bg-slate-100 p-8 custom-scrollbar print:p-0 print:overflow-visible">
+            <div className="flex-1 overflow-y-auto bg-slate-100 p-8 custom-scrollbar print:p-0 print:overflow-visible !text-black">
               <InvoiceTemplate data={invoice as InvoiceWithSale} />
             </div>
           </div>

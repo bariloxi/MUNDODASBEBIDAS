@@ -314,3 +314,10 @@ select, input {
     size: auto;
   }
 }
+
+.force-black-text {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}

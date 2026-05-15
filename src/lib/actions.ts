@@ -762,3 +762,24 @@ export async function getCurrentUser() {
     return null;
   }
 }
+
+export async function getDailySalesDetail() {
+  const now = new Date();
+  // Início do dia em Brasília (UTC-3)
+  const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 3, 0, 0, 0));
+  if (now.getUTCHours() < 3) startOfDay.setUTCDate(startOfDay.getUTCDate() - 1);
+
+  return await prisma.sale.findMany({
+    where: {
+      status: { not: 'CANCELADA' },
+      createdAt: { gte: startOfDay }
+    },
+    include: {
+      client: true,
+      items: {
+        include: { product: true }
+      }
+    },
+    orderBy: { createdAt: 'asc' }
+  });
+}

@@ -29,7 +29,7 @@ export default function DebtReportButton({ clientId, clientName }: DebtReportBut
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px;">Venda #${sale.id.toString().padStart(4, '0')} - ${new Date(sale.createdAt).toLocaleDateString('pt-BR')}</div>
             ${sale.items.map((item) => `
               <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                <div style="flex: 1;">${item.quantity}x ${item.product.name} ${item.product.volume || ''}</div>
+                <div style="flex: 1;">${item.quantity}x ${item.product.name} ${item.product.brand || ''} ${item.product.volume || ''}</div>
                 <div style="text-align: right;">R$ ${(item.price * item.quantity).toFixed(2)}</div>
               </div>
             `).join('')}
