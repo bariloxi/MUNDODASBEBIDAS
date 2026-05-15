@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import PrintButton from '@/components/PrintButton';
 import DailyClosingAction from '@/components/DailyClosingAction';
+import DailyItemsAction from '@/components/DailyItemsAction';
 import { prisma } from '@/lib/prisma';
 import { cn, formatDateTime } from '@/lib/utils';
 
@@ -205,6 +206,7 @@ const ReportsPage = async () => {
           <p className="text-slate-400 text-sm">Acompanhamento de KPIs e métricas de crescimento operacional.</p>
         </div>
         <div className="flex gap-3">
+          <DailyItemsAction />
           <DailyClosingAction />
           <PrintButton label="Exportar PDF/Relatório" />
         </div>
