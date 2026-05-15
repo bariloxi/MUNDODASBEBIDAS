@@ -79,7 +79,7 @@ export async function searchProducts(term: string) {
 }
 
 export async function completeSale(data: {
-  userId: number;
+  userId?: number;
   paymentMethod: string;
   discount: number;
   total: number;
@@ -87,12 +87,16 @@ export async function completeSale(data: {
   dueDate?: string;
   items: { productId: number; quantity: number; price: number }[];
 }) {
+  let activeUserId = data.userId || 1;
   try {
+    const user = await getCurrentUser();
+    activeUserId = user?.id || data.userId || 1;
+
     const sale = await prisma.$transaction(async (tx) => {
       // 1. Create the sale
       const newSale = await tx.sale.create({
         data: {
-          userId: data.userId,
+          userId: activeUserId,
           paymentMethod: data.paymentMethod,
           discount: data.discount,
           total: data.total,
@@ -124,7 +128,7 @@ export async function completeSale(data: {
           data: {
             event: 'STOCK_DECREMENT',
             details: `Venda ID ${newSale.id}: Produto ${updatedProduct.name} (ID ${item.productId}) reduzido em ${item.quantity}. Novo estoque: ${updatedProduct.stock}`,
-            userId: data.userId
+            userId: activeUserId
           }
         });
       }
@@ -132,7 +136,7 @@ export async function completeSale(data: {
       return newSale;
     });
 
-    await createLog('SALE_COMPLETE', `Venda ID ${sale.id} finalizada com sucesso. Total: R$ ${data.total}`, data.userId);
+    await createLog('SALE_COMPLETE', `Venda ID ${sale.id} finalizada com sucesso. Total: R$ ${data.total}`, activeUserId);
 
     revalidatePath('/products');
     revalidatePath('/pdv');
@@ -141,7 +145,7 @@ export async function completeSale(data: {
   } catch (error) {
     console.error('Error completing sale:', error);
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-    await createLog('SALE_ERROR', `Falha ao processar venda: ${errorMessage}`, data.userId);
+    await createLog('SALE_ERROR', `Falha ao processar venda: ${errorMessage}`, activeUserId);
     return { success: false, error: 'Erro ao processar venda. Verifique se há estoque suficiente.' };
   }
 }
@@ -193,6 +197,7 @@ export async function cancelSale(saleId: number) {
     revalidatePath('/finance');
     revalidatePath('/pdv');
     revalidatePath('/products');
+    revalidatePath('/reports');
     revalidatePath('/');
     
     return { success: true, sale: result };
@@ -226,17 +231,22 @@ export async function createExpense(formData: FormData) {
   const dateStr = formData.get('date') as string;
   const date = dateStr ? new Date(dateStr) : new Date();
 
-  await prisma.expense.create({
-    data: {
-      description,
-      amount,
-      category,
-      date,
-    },
-  });
+  try {
+    await prisma.expense.create({
+      data: {
+        description,
+        amount,
+        category,
+        date,
+      },
+    });
 
-  revalidatePath('/finance');
-  revalidatePath('/reports');
+    revalidatePath('/finance');
+    revalidatePath('/reports');
+  } catch (error) {
+    console.error('Error creating expense:', error);
+    await createLog('EXPENSE_ERROR', `Falha ao criar despesa: ${description}`);
+  }
 }
 
 export async function getSettings() {
@@ -289,12 +299,16 @@ export async function createUser(formData: FormData) {
   const password = formData.get('password') as string;
   const role = formData.get('role') as string;
 
-  await prisma.user.create({
-    data: { name, email, password, role }
-  });
+  try {
+    await prisma.user.create({
+      data: { name, email, password, role }
+    });
 
-  await createLog('USER_CREATE', `Usuário ${name} criado com cargo ${role}`);
-  revalidatePath('/settings');
+    await createLog('USER_CREATE', `Usuário ${name} criado com cargo ${role}`);
+    revalidatePath('/settings');
+  } catch (error) {
+    console.error('Error creating user:', error);
+  }
 }
 
 export async function updateUser(id: number, formData: FormData) {
@@ -306,13 +320,17 @@ export async function updateUser(id: number, formData: FormData) {
   const data: Prisma.UserUpdateInput = { name, email, role };
   if (password) data.password = password;
 
-  await prisma.user.update({
-    where: { id },
-    data
-  });
+  try {
+    await prisma.user.update({
+      where: { id },
+      data
+    });
 
-  await createLog('USER_UPDATE', `Usuário ID ${id} atualizado`);
-  revalidatePath('/settings');
+    await createLog('USER_UPDATE', `Usuário ID ${id} atualizado`);
+    revalidatePath('/settings');
+  } catch (error) {
+    console.error('Error updating user:', error);
+  }
 }
 
 export async function deleteUser(id: number) {
@@ -419,23 +437,27 @@ export async function updateProduct(id: number, formData: FormData) {
   const minStock = parseInt(formData.get('minStock') as string);
   const expiry = formData.get('expiry') ? new Date(formData.get('expiry') as string) : null;
 
-  await prisma.product.update({
-    where: { id },
-    data: {
-      name,
-      categoryId,
-      brand,
-      volume,
-      barcode: barcode || null,
-      costPrice,
-      sellPrice,
-      stock,
-      minStock,
-      expiry,
-    },
-  });
+  try {
+    await prisma.product.update({
+      where: { id },
+      data: {
+        name,
+        categoryId,
+        brand,
+        volume,
+        barcode: barcode || null,
+        costPrice,
+        sellPrice,
+        stock,
+        minStock,
+        expiry,
+      },
+    });
 
-  revalidatePath('/products');
+    revalidatePath('/products');
+  } catch (error) {
+    console.error('Error updating product:', error);
+  }
   redirect('/products');
 }
 

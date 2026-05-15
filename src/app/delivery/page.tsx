@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Truck, Plus, MessageSquare, Clock, MapPin, Package, Navigation } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import DeliveryStatusAction from '@/components/DeliveryStatusAction';
-import { cn } from '@/lib/utils';
+import { cn, formatDateTime } from '@/lib/utils';
 
 async function getDeliveries() {
   return await prisma.sale.findMany({
@@ -70,7 +70,7 @@ const DeliveryPage = async () => {
                   <h3 className="font-bold text-white group-hover:text-primary transition-colors tracking-tight">Rastreio #{delivery.id.toString().padStart(4, '0')}</h3>
                   <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
                     <Clock size={12} className="text-slate-600" /> 
-                    {new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(delivery.createdAt)}
+                    {formatDateTime(delivery.createdAt.toISOString())}
                   </div>
                 </div>
                 <div className={cn(

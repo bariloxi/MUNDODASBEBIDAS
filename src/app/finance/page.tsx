@@ -12,7 +12,7 @@ import {
   PieChart
 } from 'lucide-react';
 import { getExpenses, getSales } from '@/lib/actions';
-import { cn } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 import InvoiceAction from '@/components/InvoiceAction';
 import CancelSaleAction from '@/components/CancelSaleAction';
 import { SaleWithRelations } from '@/lib/types';
@@ -23,10 +23,12 @@ async function getFinanceData() {
   const sales = await getSales();
   const expenses = await getExpenses();
   
-  const totalRevenue = sales.reduce((acc: number, sale) => acc + sale.total, 0);
+  const validSales = (sales as SaleWithRelations[]).filter(s => s.status !== 'CANCELADA');
+  
+  const totalRevenue = validSales.reduce((acc: number, sale) => acc + sale.total, 0);
   const totalExpenses = expenses.reduce((acc: number, exp) => acc + exp.amount, 0);
   
-  const byMethod = (sales as SaleWithRelations[]).reduce((acc: Record<string, number>, sale) => {
+  const byMethod = validSales.reduce((acc: Record<string, number>, sale) => {
     acc[sale.paymentMethod] = (acc[sale.paymentMethod] || 0) + sale.total;
     return acc;
   }, {});
@@ -63,7 +65,7 @@ const FinancePage = async () => {
         </div>
         <div className="flex items-center gap-3 bg-bg-surface/50 border border-border py-2 px-5 rounded-none text-xs font-semibold text-slate-300 shadow-sm">
           <Calendar size={14} className="text-primary" />
-          Março 2026
+          {new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}
         </div>
       </header>
 
@@ -166,7 +168,7 @@ const FinancePage = async () => {
                     <div className="text-center min-w-[50px] p-2.5 rounded-none bg-slate-900/50 border border-border group-hover:border-primary/20 transition-colors">
                       <p className="text-[8px] font-bold text-slate-500 uppercase leading-none mb-1">DATA</p>
                       <p className="text-xs font-black text-slate-200">
-                        {new Date(sale.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                        {formatDate(sale.createdAt.toISOString())}
                       </p>
                     </div>
                     <div>
@@ -186,7 +188,7 @@ const FinancePage = async () => {
                           {sale.status}
                         </span>
                       </div>
-                      <p className="text-[11px] font-medium text-slate-400">
+                      <p className={cn("text-[11px] font-medium", sale.status === 'CANCELADA' ? "text-slate-600 line-through" : "text-slate-400")}>
                         {(sale as SaleWithRelations).client?.name || 'Venda Balcão'} 
                         <span className="mx-2 text-slate-700">•</span>
                         {(sale as SaleWithRelations).items?.length || 0} {(sale as SaleWithRelations).items?.length === 1 ? 'item' : 'itens'}
@@ -198,7 +200,7 @@ const FinancePage = async () => {
                   </div>
                   <div className="text-right flex items-center gap-6">
                     <div>
-                      <p className="text-lg font-black text-white tracking-tight text-right">
+                      <p className={cn("text-lg font-black tracking-tight text-right", sale.status === 'CANCELADA' ? "text-slate-500 line-through" : "text-white")}>
                         R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </div>

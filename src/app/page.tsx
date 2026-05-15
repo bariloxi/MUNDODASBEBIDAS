@@ -11,25 +11,24 @@ import {
   ChevronRight,
   ShieldAlert
 } from 'lucide-react';
+import { cn, formatDateTime, formatFullDate } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 async function getDashboardData() {
   try {
-    const totalSales = await prisma.sale.aggregate({
-      _sum: { total: true },
-      _count: true
-    });
+    const now = new Date();
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const salesToday = await prisma.sale.aggregate({
-      where: { createdAt: { gte: today } },
-      _sum: { total: true }
+    // 1. Total Revenue (Excluding canceled)
+    const allSalesData = await prisma.sale.findMany({
+      select: { total: true, status: true }
     });
-
+    const validTotalSales = allSalesData.filter(s => s.status !== 'CANCELADA');
+    const totalRevenue = validTotalSales.reduce((acc, sale) => acc + sale.total, 0);
+    const totalCount = validTotalSales.length;
+    
     const lowStockCount = await prisma.product.count({
       where: { stock: { lte: 10 } }
     });
@@ -41,9 +40,8 @@ async function getDashboardData() {
     });
 
     return {
-      totalRevenue: totalSales._sum.total || 0,
-      totalCount: totalSales._count || 0,
-      todayRevenue: salesToday._sum.total || 0,
+      totalRevenue,
+      totalCount,
       lowStockCount,
       recentSales,
       error: null
@@ -74,14 +72,6 @@ const Dashboard = async () => {
       color: 'text-orange-500'
     },
     { 
-      label: 'Vendas (Hoje)', 
-      value: `R$ ${data.todayRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 
-      icon: ShoppingCart, 
-      trend: '+4.2%', 
-      trendUp: true,
-      color: 'text-orange-400'
-    },
-    { 
       label: 'Volume de Pedidos', 
       value: data.totalCount.toString(), 
       icon: Package, 
@@ -95,8 +85,8 @@ const Dashboard = async () => {
       icon: Users, 
       trend: data.lowStockCount > 5 ? 'Atenção' : 'Estável', 
       trendUp: data.lowStockCount <= 5,
-      color: 'text-orange-600'
-    },
+      color: 'text-orange-400'
+    }
   ];
 
   return (
@@ -111,18 +101,18 @@ const Dashboard = async () => {
       {/* Header - Simples e Sem Sobreposição */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-white tracking-tight">Painel Operacional</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Painel Operacional v1.1</h1>
           <div className="h-0.5 w-16 bg-primary rounded-none mt-2" />
           <p className="text-slate-500 text-[11px] mt-2 font-medium italic">Visão consolidada para tomada de decisão estratégica.</p>
         </div>
         <div className="flex items-center gap-3 bg-bg-surface/50 border border-border py-2 px-5 rounded-none text-xs font-semibold text-slate-300 shadow-sm">
           <Calendar size={14} className="text-primary" />
-          {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' }).format(new Date())}
+          <span>{formatFullDate(new Date().toISOString())}</span>
         </div>
       </header>
 
-      {/* KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, i) => (
           <div key={i} className="premium-card relative group overflow-hidden">
             <div className="flex justify-between items-start mb-6">
@@ -180,22 +170,27 @@ const Dashboard = async () => {
                           "px-2 py-0.5 rounded-none text-[9px] font-bold uppercase border",
                           sale.status === 'CONCLUIDA' ? "bg-success/5 text-success border-success/20" : 
                           sale.status === 'SAIU_PARA_ENTREGA' ? "bg-primary/5 text-primary border-primary/20" :
+                          sale.status === 'CANCELADA' ? "bg-danger/10 text-danger border-danger/20 line-through opacity-50" :
                           "bg-warning/5 text-warning border-warning/20"
                         )}>
                           {sale.status.replace(/_/g, ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-sm text-slate-200">{sale.client?.name || 'Venda de Balcão'}</p>
+                        <p className={cn("font-bold text-sm", sale.status === 'CANCELADA' ? "text-slate-500 line-through" : "text-slate-200")}>
+                          {sale.client?.name || 'Venda de Balcão'}
+                        </p>
                         <p className="text-[10px] text-slate-500 mt-0.5 font-medium uppercase tracking-tight">TRX-{sale.id.toString().padStart(5, '0')}</p>
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-xs font-medium text-slate-400 capitalize">
-                          {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium', timeStyle: 'short' }).format(sale.createdAt)}
+                          {formatDateTime(sale.createdAt.toISOString())}
                         </p>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <span className="font-bold text-white">R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        <span className={cn("font-bold", sale.status === 'CANCELADA' ? "text-slate-500 line-through" : "text-white")}>
+                          R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
                       </td>
                     </tr>
                   ))

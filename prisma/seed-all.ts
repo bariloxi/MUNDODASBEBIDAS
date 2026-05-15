@@ -6,7 +6,7 @@ async function main() {
 
   // 1. Categories
   const categoriesList = [
-    'Cerveja', 'Whisky', 'Vodka', 'Energético', 'Refrigerante', 
+    'Cerveja', 'Whisky', 'Vodka', 'Energético', 'Refrigerante / Suco', 
     'Vinho', 'Espumante', 'Petiscos', 'Cachaça', 'Gelo / Carvão'
   ];
   const categories = [];

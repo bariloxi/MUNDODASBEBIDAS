@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { InvoiceWithSale } from '@/lib/types';
+import { formatDateTime, formatDate } from '@/lib/utils';
 
 interface InvoiceTemplateProps {
   data: InvoiceWithSale;
@@ -91,13 +92,13 @@ export default function InvoiceTemplate({ data }: InvoiceTemplateProps) {
 
       <div className="border-t border-dashed border-black pt-2 mb-4">
         <p className="uppercase">Pagamento: {data.sale.paymentMethod.replace(/_/g, ' ')}</p>
-        {data.sale.dueDate && <p className="font-bold">VENCIMENTO: {new Date(data.sale.dueDate).toLocaleDateString('pt-BR')}</p>}
+        {data.sale.dueDate && <p className="font-bold">VENCIMENTO: {formatDate(data.sale.dueDate)}</p>}
       </div>
 
       <div className="text-center space-y-2 pt-4 border-t border-dashed border-black">
         <p className="font-bold uppercase">Assinatura do Cliente:</p>
         <div className="mt-8 border-t border-black w-48 mx-auto"></div>
-        <p className="text-[8px] uppercase mt-4">Emitido em {new Date().toLocaleString('pt-BR')}</p>
+        <p className="text-[8px] uppercase mt-4">Emitido em {formatDateTime(new Date())}</p>
       </div>
 
       <div className="text-center pt-4 mt-4 border-t border-dashed border-black">

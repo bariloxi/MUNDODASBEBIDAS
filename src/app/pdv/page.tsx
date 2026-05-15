@@ -64,7 +64,6 @@ const PDVPage = () => {
     showToast('Processando venda...', 'loading');
     try {
       const res = await completeSale({
-        userId: 1, // Em um cenário real, pegar do contexto de auth
         paymentMethod,
         discount,
         total,

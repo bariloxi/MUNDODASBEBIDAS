@@ -10,20 +10,23 @@ import {
 } from 'lucide-react';
 import PrintButton from '@/components/PrintButton';
 import { prisma } from '@/lib/prisma';
-import { cn } from '@/lib/utils';
+import { cn, formatDateTime } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 async function getReportData() {
   const now = new Date();
+  // Início do dia em Brasília (UTC-3) é 03:00:00 no horário UTC
+  const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 3, 0, 0, 0));
+  if (now.getUTCHours() < 3) startOfDay.setUTCDate(startOfDay.getUTCDate() - 1);
   
-  // Start of periods (using local time of the server/process)
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfWeek = new Date(startOfDay);
+  startOfWeek.setUTCDate(startOfDay.getUTCDate() - startOfDay.getUTCDay()); // Domingo
   
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
-  startOfWeek.setHours(0, 0, 0, 0);
-  
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 3, 0, 0, 0));
+  if (now.getUTCHours() < 3 && now.getUTCDate() === 1) {
+    startOfMonth.setUTCMonth(startOfMonth.getUTCMonth() - 1);
+  }
 
   const [
     totalSalesCount, 
@@ -33,9 +36,9 @@ async function getReportData() {
     weeklySales, 
     monthlySales
   ] = await Promise.all([
-    prisma.sale.count({ where: { status: 'CONCLUIDA' } }),
+    prisma.sale.count({ where: { status: { not: 'CANCELADA' } } }),
     prisma.sale.findMany({
-      where: { status: 'CONCLUIDA' },
+      where: { status: { not: 'CANCELADA' } },
       include: {
         items: {
           include: {
@@ -60,28 +63,31 @@ async function getReportData() {
     }),
     prisma.sale.findMany({
       where: {
-        status: 'CONCLUIDA',
+        status: { not: 'CANCELADA' },
         createdAt: { gte: startOfDay }
-      }
+      },
+      select: { total: true }
     }),
     prisma.sale.findMany({
       where: {
-        status: 'CONCLUIDA',
+        status: { not: 'CANCELADA' },
         createdAt: { gte: startOfWeek }
-      }
+      },
+      select: { total: true }
     }),
     prisma.sale.findMany({
       where: {
-        status: 'CONCLUIDA',
+        status: { not: 'CANCELADA' },
         createdAt: { gte: startOfMonth }
-      }
+      },
+      select: { total: true }
     })
   ]);
 
-  const revenue = sales.reduce((acc, sale) => acc + sale.total, 0);
-  const dailyRevenue = dailySales.reduce((acc, s) => acc + s.total, 0);
-  const weeklyRevenue = weeklySales.reduce((acc, s) => acc + s.total, 0);
-  const monthlyRevenue = monthlySales.reduce((acc, s) => acc + s.total, 0);
+  const revenue = sales.reduce((acc, sale) => acc + (sale.total || 0), 0);
+  const dailyRevenue = dailySales.reduce((acc, s) => acc + (s.total || 0), 0);
+  const weeklyRevenue = weeklySales.reduce((acc, s) => acc + (s.total || 0), 0);
+  const monthlyRevenue = monthlySales.reduce((acc, s) => acc + (s.total || 0), 0);
   
   // Calculate category sales for market share
   const catSales: Record<string, number> = {};
@@ -101,7 +107,7 @@ async function getReportData() {
   const inventoryReport = products.map(product => {
     // Only count items from non-cancelled sales
     const unitsSold = product.saleItems
-      .filter(item => item.sale.status === 'CONCLUIDA')
+      .filter(item => item.sale.status !== 'CANCELADA')
       .reduce((acc, item) => acc + item.quantity, 0);
       
     return {
@@ -150,7 +156,7 @@ const ReportsPage = async () => {
           </div>
           <div className="text-right">
             <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Gerado em</p>
-            <p className="text-[10px] font-black text-black">{new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeStyle: 'short' }).format(new Date())}</p>
+            <p className="text-[10px] font-black text-black">{formatDateTime(new Date().toISOString())}</p>
           </div>
         </div>
         

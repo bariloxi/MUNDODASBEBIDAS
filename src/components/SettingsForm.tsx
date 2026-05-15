@@ -6,7 +6,7 @@ import {
   ChevronRight, Lock, Laptop, Settings as SettingsIcon, Plus, Trash2, Edit 
 } from 'lucide-react';
 import { updateSettings, resetTransactionData, createUser, updateUser, deleteUser, createLog } from '@/lib/actions';
-import { cn } from '@/lib/utils';
+import { cn, formatDateTime } from '@/lib/utils';
 
 import { User, Log } from '@prisma/client';
 
@@ -309,7 +309,7 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ initialSettings, initialUse
                     {initialLogs.map((log) => (
                       <div key={log.id} className="flex items-start gap-4 p-3 rounded-none bg-bg-surface border border-border/40 text-[10px]">
                         <div className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
-                          {new Date(log.createdAt).toLocaleTimeString()}
+                          {formatDateTime(log.createdAt)}
                         </div>
                         <div className="flex-1">
                           <p className="font-bold text-slate-200">{log.event}</p>
