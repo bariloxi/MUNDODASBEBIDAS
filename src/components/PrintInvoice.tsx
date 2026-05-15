@@ -6,7 +6,9 @@ interface SaleItem {
   id: number;
   product: {
     name: string;
+    brand?: string | null;
     volume: string | null;
+    barcode?: string | null;
   };
   quantity: number;
   price: number;
