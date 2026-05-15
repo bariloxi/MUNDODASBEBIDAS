@@ -81,11 +81,20 @@ export default function DailyClosingReport({ sales, date }: DailyClosingReportPr
         </thead>
         <tbody>
           {sales.map((sale) => (
-            <tr key={sale.id} className="border-b border-black/20">
-              <td className="py-3 font-bold">#{sale.id.toString().padStart(4, '0')}</td>
-              <td className="py-3 font-bold uppercase">{sale.client?.name || 'Venda Balcão'}</td>
-              <td className="py-3 font-bold uppercase">{sale.paymentMethod}</td>
-              <td className="py-3 text-right font-black">R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+            <tr key={sale.id} className="border-b-2 border-black/10">
+              <td className="py-4 font-bold align-top">#{sale.id.toString().padStart(4, '0')}</td>
+              <td className="py-4 align-top">
+                <div className="font-black uppercase mb-1">{sale.client?.name || 'Venda Balcão'}</div>
+                <div className="space-y-1">
+                  {sale.items.map((item, idx) => (
+                    <div key={idx} className="text-[11px] font-bold uppercase leading-tight">
+                      • {item.quantity}x {item.product.name} {item.product.volume || ''}
+                    </div>
+                  ))}
+                </div>
+              </td>
+              <td className="py-4 font-bold uppercase align-top">{sale.paymentMethod}</td>
+              <td className="py-4 text-right font-black text-lg align-top">R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
             </tr>
           ))}
         </tbody>
