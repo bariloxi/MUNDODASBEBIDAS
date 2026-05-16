@@ -205,10 +205,16 @@ const ReportsPage = async () => {
           <h1 className="text-3xl font-extrabold text-white tracking-tight">Relatórios de Desempenho</h1>
           <p className="text-slate-400 text-sm">Acompanhamento de KPIs e métricas de crescimento operacional.</p>
         </div>
-        <div className="flex gap-3">
-          <DailyItemsAction />
-          <DailyClosingAction />
-          <PrintButton label="Exportar PDF/Relatório" />
+        <div className="flex flex-col items-end gap-3">
+          <div className="flex gap-3">
+            <DailyItemsAction />
+            <DailyClosingAction />
+          </div>
+          <div className="flex gap-3">
+            <DailyItemsAction isYesterday={true} />
+            <DailyClosingAction isYesterday={true} />
+            <PrintButton label="Imprimir Dashboard" />
+          </div>
         </div>
       </header>
 

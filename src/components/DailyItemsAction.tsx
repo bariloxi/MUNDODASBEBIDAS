@@ -4,13 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Package, Loader2, Printer, X } from 'lucide-react';
 import { getDailySalesDetail } from '@/lib/actions';
+import { cn } from '@/lib/utils';
 import DailyItemsReport from './DailyItemsReport';
 
-export default function DailyItemsAction() {
+export default function DailyItemsAction({ isYesterday }: { isYesterday?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [sales, setSales] = useState<any[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [reportDate, setReportDate] = useState<Date>(new Date());
 
   useEffect(() => {
     setMounted(true);
@@ -19,7 +21,12 @@ export default function DailyItemsAction() {
   const handleOpen = async () => {
     setLoading(true);
     try {
-      const data = await getDailySalesDetail();
+      let targetDate = new Date();
+      if (isYesterday) {
+        targetDate.setDate(targetDate.getDate() - 1);
+      }
+      setReportDate(targetDate);
+      const data = await getDailySalesDetail(isYesterday ? targetDate.toISOString() : undefined);
       setSales(data);
       setShowPreview(true);
     } catch (error) {
@@ -39,10 +46,15 @@ export default function DailyItemsAction() {
       <button
         onClick={handleOpen}
         disabled={loading}
-        className="flex items-center gap-3 px-5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm group bg-blue-600 text-white border border-blue-500/20 hover:bg-blue-500 active:scale-95"
+        className={cn(
+          "flex items-center gap-3 px-5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm group",
+          isYesterday
+            ? "bg-slate-700 text-white border border-slate-600 hover:bg-slate-600 active:scale-95"
+            : "bg-blue-600 text-white border border-blue-500/20 hover:bg-blue-500 active:scale-95"
+        )}
       >
         {loading ? <Loader2 size={16} className="animate-spin" /> : <Package size={16} className="group-hover:rotate-12 transition-transform" />}
-        <span>Relatório de Itens</span>
+        <span>{isYesterday ? 'Itens de Ontem' : 'Relatório de Itens'}</span>
       </button>
 
       {showPreview && mounted && createPortal(
@@ -74,7 +86,7 @@ export default function DailyItemsAction() {
             </div>
 
             <div className="flex-1 overflow-visible bg-white p-2 print:p-0">
-              <DailyItemsReport sales={sales} date={new Date()} />
+              <DailyItemsReport sales={sales} date={reportDate} />
             </div>
           </div>
         </div>,

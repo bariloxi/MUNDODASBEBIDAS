@@ -21,9 +21,10 @@ interface Sale {
 interface DailyItemsReportProps {
   sales: Sale[];
   date: Date;
+  isEmbedded?: boolean;
 }
 
-export default function DailyItemsReport({ sales, date }: DailyItemsReportProps) {
+export default function DailyItemsReport({ sales, date, isEmbedded }: DailyItemsReportProps) {
   // Group items by product
   const groupedItems = sales.flatMap(s => s.items).reduce((acc: any, item) => {
     const key = `${item.product.name}-${item.product.volume || ''}`;
@@ -44,7 +45,7 @@ export default function DailyItemsReport({ sales, date }: DailyItemsReportProps)
 
   return (
     <div 
-      className="bg-white p-8 w-full max-w-[210mm] mx-auto font-sans text-black force-black-text"
+      className={`bg-white w-full max-w-[210mm] mx-auto font-sans text-black force-black-text ${isEmbedded ? '' : 'p-8'}`}
       style={{ backgroundColor: '#ffffff' }}
     >
       <div className="text-center border-b-4 border-black pb-6 mb-8">

@@ -7,11 +7,12 @@ import { getDailySalesDetail } from '@/lib/actions';
 import { cn } from '@/lib/utils';
 import DailyClosingReport from './DailyClosingReport';
 
-export default function DailyClosingAction() {
+export default function DailyClosingAction({ isYesterday }: { isYesterday?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [sales, setSales] = useState<any[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [reportDate, setReportDate] = useState<Date>(new Date());
 
   useEffect(() => {
     setMounted(true);
@@ -20,7 +21,12 @@ export default function DailyClosingAction() {
   const handleOpen = async () => {
     setLoading(true);
     try {
-      const data = await getDailySalesDetail();
+      let targetDate = new Date();
+      if (isYesterday) {
+        targetDate.setDate(targetDate.getDate() - 1);
+      }
+      setReportDate(targetDate);
+      const data = await getDailySalesDetail(isYesterday ? targetDate.toISOString() : undefined);
       setSales(data);
       setShowPreview(true);
     } catch (error) {
@@ -40,10 +46,15 @@ export default function DailyClosingAction() {
       <button
         onClick={handleOpen}
         disabled={loading}
-        className="flex items-center gap-3 px-5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm group bg-emerald-600 text-white border border-emerald-500/20 hover:bg-emerald-500 active:scale-95"
+        className={cn(
+          "flex items-center gap-3 px-5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm group",
+          isYesterday 
+            ? "bg-slate-700 text-white border border-slate-600 hover:bg-slate-600 active:scale-95"
+            : "bg-emerald-600 text-white border border-emerald-500/20 hover:bg-emerald-500 active:scale-95"
+        )}
       >
         {loading ? <Loader2 size={16} className="animate-spin" /> : <Calculator size={16} className="group-hover:rotate-12 transition-transform" />}
-        <span>Fechar Caixa Diário</span>
+        <span>{isYesterday ? 'Fechar Caixa Ontem' : 'Fechar Caixa Diário'}</span>
       </button>
 
       {showPreview && mounted && createPortal(
@@ -75,7 +86,7 @@ export default function DailyClosingAction() {
             </div>
 
             <div className="flex-1 overflow-visible bg-white p-2 print:p-0">
-              <DailyClosingReport sales={sales} date={new Date()} />
+              <DailyClosingReport sales={sales} date={reportDate} />
             </div>
           </div>
         </div>,

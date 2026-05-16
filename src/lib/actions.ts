@@ -763,16 +763,28 @@ export async function getCurrentUser() {
   }
 }
 
-export async function getDailySalesDetail() {
-  const now = new Date();
-  // Início do dia em Brasília (UTC-3)
-  const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 3, 0, 0, 0));
-  if (now.getUTCHours() < 3) startOfDay.setUTCDate(startOfDay.getUTCDate() - 1);
+export async function getDailySalesDetail(dateStr?: string) {
+  const referenceDate = dateStr ? new Date(dateStr) : new Date();
+  
+  // Início do dia em Brasília (UTC-3) é 03:00:00 no horário UTC
+  const startOfDay = new Date(Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), referenceDate.getUTCDate(), 3, 0, 0, 0));
+  
+  // Se não foi passado uma data específica (estamos olhando o "agora")
+  // e ainda não são 3h da manhã UTC, significa que ainda estamos no "dia anterior" operacionalmente.
+  if (!dateStr && referenceDate.getUTCHours() < 3) {
+    startOfDay.setUTCDate(startOfDay.getUTCDate() - 1);
+  }
+
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
 
   return await prisma.sale.findMany({
     where: {
       status: { not: 'CANCELADA' },
-      createdAt: { gte: startOfDay }
+      createdAt: { 
+        gte: startOfDay,
+        lt: endOfDay
+      }
     },
     include: {
       client: true,

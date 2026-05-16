@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { formatDateTime, formatDate } from '@/lib/utils';
+import DailyItemsReport from './DailyItemsReport';
 
 interface SaleItem {
   product: {
@@ -102,6 +103,10 @@ export default function DailyClosingReport({ sales, date }: DailyClosingReportPr
 
       <div className="text-center mt-20 pt-10 border-t-2 border-black/10">
         <p className="text-[10px] font-bold uppercase">Sistema Mundo das Bebidas - Relatório de Fechamento Emitido em {formatDateTime(new Date().toISOString())}</p>
+      </div>
+
+      <div className="print:break-before-page mt-12 border-t-8 border-black pt-12">
+        <DailyItemsReport sales={sales} date={date} isEmbedded={true} />
       </div>
     </div>
   );
