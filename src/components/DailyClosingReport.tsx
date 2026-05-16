@@ -9,6 +9,7 @@ interface SaleItem {
     name: string;
     brand: string | null;
     volume: string | null;
+    barcode: string | null;
   };
   quantity: number;
   price: number;
