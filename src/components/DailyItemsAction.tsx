@@ -19,6 +19,17 @@ export default function DailyItemsAction({ isYesterday }: { isYesterday?: boolea
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (showPreview) {
+      document.body.classList.add('printing-invoice');
+    } else {
+      document.body.classList.remove('printing-invoice');
+    }
+    return () => {
+      document.body.classList.remove('printing-invoice');
+    };
+  }, [showPreview]);
+
   const handleOpen = async () => {
     setLoading(true);
     try {

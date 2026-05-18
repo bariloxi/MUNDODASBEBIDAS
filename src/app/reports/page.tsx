@@ -211,7 +211,6 @@ const ReportsPage = async () => {
             <DailyClosingAction />
           </div>
           <div className="flex gap-3">
-            <DailyItemsAction isYesterday={true} />
             <DailyClosingAction isYesterday={true} />
             <PrintButton label="Imprimir Dashboard" />
           </div>
