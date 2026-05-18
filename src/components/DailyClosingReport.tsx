@@ -76,7 +76,7 @@ export default function DailyClosingReport({ sales, date }: DailyClosingReportPr
         <thead>
           <tr className="border-b border-black !bg-transparent">
             <th className="text-left py-2 font-bold uppercase text-[10px] !p-2 !bg-transparent !text-black">Venda</th>
-            <th className="text-left py-2 font-bold uppercase text-[10px] !p-2 !bg-transparent !text-black">Cliente</th>
+            <th className="text-left py-2 font-bold uppercase text-[10px] !p-2 !bg-transparent !text-black">Produto / Descrição</th>
             <th className="text-left py-2 font-bold uppercase text-[10px] !p-2 !bg-transparent !text-black">Pagamento</th>
             <th className="text-right py-2 font-bold uppercase text-[10px] !p-2 !bg-transparent !text-black">Valor</th>
           </tr>
@@ -85,7 +85,24 @@ export default function DailyClosingReport({ sales, date }: DailyClosingReportPr
           {sales.map((sale) => (
             <tr key={sale.id} className="border-b border-gray-200">
               <td className="py-2 !p-2 !text-black">#{sale.id.toString().padStart(4, '0')}</td>
-              <td className="py-2 uppercase !p-2 !text-black">{sale.client?.name || 'Venda Balcão'}</td>
+              <td className="py-2 !p-2 !text-black">
+                <div className="space-y-1">
+                  {sale.items?.map((item, idx) => (
+                    <div key={idx} className="text-[10px] leading-tight">
+                      <span className="font-bold text-gray-900">{item.quantity}x</span>{' '}
+                      <span className="uppercase">{item.product?.name}</span>
+                      {(item.product?.brand || item.product?.volume) && (
+                        <span className="text-gray-500 lowercase text-[9px] ml-1">
+                          ({[item.product?.brand, item.product?.volume].filter(Boolean).join(' ')})
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                  {(!sale.items || sale.items.length === 0) && (
+                    <span className="text-gray-400 italic text-[10px]">Sem itens</span>
+                  )}
+                </div>
+              </td>
               <td className="py-2 uppercase !p-2 !text-black">{sale.paymentMethod}</td>
               <td className="py-2 text-right !p-2 !text-black font-semibold">R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
             </tr>
