@@ -150,47 +150,47 @@ const ReportsPage = async () => {
     <div className="space-y-8 pb-10">
 
       {/* Print-only Header - Redesenhado para ser compacto e informativo */}
-      <div className="hidden print:block mb-8">
-        <div className="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
+      <div className="hidden print:block mb-6 text-black font-sans">
+        <div className="flex justify-between items-center border-b border-black pb-2 mb-4">
           <div>
-            <h1 className="text-2xl font-black text-black uppercase tracking-tighter">Mundo das Bebidas Disk</h1>
-            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">Relatório Consolidado de Vendas e Giro de Estoque</p>
+            <h1 className="text-sm font-bold uppercase tracking-tight">Mundo das Bebidas Disk</h1>
+            <p className="text-[8px] mt-0.5 text-gray-600 uppercase">Relatório Consolidado de Vendas e Giro de Estoque</p>
           </div>
           <div className="text-right">
-            <p className="text-[8px] font-bold text-slate-400 uppercase mb-1">Gerado em</p>
-            <p className="text-[10px] font-black text-black">{formatDateTime(new Date().toISOString())}</p>
+            <p className="text-[8px] text-gray-500 uppercase mb-0.5">Gerado em</p>
+            <p className="text-[10px] font-bold">{formatDateTime(new Date().toISOString())}</p>
           </div>
         </div>
         
         {/* Bloco de Performance Financeira (Dia, Semana, Mês) */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-slate-50 border border-slate-200 p-3 rounded-none">
-            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas Hoje</p>
-            <p className="text-lg font-black text-black">R$ {data.dailyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="border border-gray-300 p-2">
+            <p className="text-[8px] text-gray-500 uppercase mb-0.5">Vendas Hoje</p>
+            <p className="text-xs font-bold">R$ {data.dailyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
-          <div className="bg-slate-50 border border-slate-200 p-3 rounded-none">
-            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas na Semana</p>
-            <p className="text-lg font-black text-black">R$ {data.weeklyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+          <div className="border border-gray-300 p-2">
+            <p className="text-[8px] text-gray-500 uppercase mb-0.5">Vendas na Semana</p>
+            <p className="text-xs font-bold">R$ {data.weeklyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
-          <div className="bg-slate-50 border border-slate-200 p-3 rounded-none">
-            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas no Mês</p>
-            <p className="text-lg font-black text-black">R$ {data.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+          <div className="border border-gray-300 p-2">
+            <p className="text-[8px] text-gray-500 uppercase mb-0.5">Vendas no Mês</p>
+            <p className="text-xs font-bold">R$ {data.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
 
         {/* Resumo Operacional */}
-        <div className="grid grid-cols-3 gap-2 border-y border-slate-100 py-4 mb-6">
+        <div className="grid grid-cols-3 gap-2 border-y border-gray-200 py-2 mb-4">
           <div className="text-center">
-            <p className="text-[7px] font-bold text-slate-500 uppercase">Qtd Vendida</p>
-            <p className="text-sm font-black text-black">{data.totalUnitsSold} un</p>
+            <p className="text-[8px] text-gray-500 uppercase">Qtd Vendida</p>
+            <p className="text-xs font-bold">{data.totalUnitsSold} un</p>
           </div>
-          <div className="text-center border-x border-slate-100">
-            <p className="text-[7px] font-bold text-slate-500 uppercase">Saldo em Estoque</p>
-            <p className="text-sm font-black text-black">{data.totalStock} un</p>
+          <div className="text-center border-x border-gray-200">
+            <p className="text-[8px] text-gray-500 uppercase">Saldo em Estoque</p>
+            <p className="text-xs font-bold">{data.totalStock} un</p>
           </div>
           <div className="text-center">
-            <p className="text-[7px] font-bold text-slate-500 uppercase">Faturamento Geral</p>
-            <p className="text-sm font-black text-black">R$ {data.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            <p className="text-[8px] text-gray-500 uppercase">Faturamento Geral</p>
+            <p className="text-xs font-bold">R$ {data.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
           </div>
         </div>
       </div>
@@ -292,43 +292,43 @@ const ReportsPage = async () => {
         ))}
       </div>
 
-      <div className="hidden print:block mt-8 space-y-6">
-        <div className="border-l-4 border-black pl-4">
-          <h2 className="text-xl font-black text-black uppercase tracking-tight">Detalhamento de Bebidas Vendidas</h2>
-          <p className="text-xs text-slate-500 font-bold uppercase">Listagem de itens com movimentação no período</p>
+      <div className="hidden print:block mt-6 space-y-4">
+        <div className="border-l-2 border-black pl-2">
+          <h2 className="text-sm font-bold uppercase tracking-tight">Detalhamento de Bebidas Vendidas</h2>
+          <p className="text-[8px] text-gray-600 uppercase">Listagem de itens com movimentação no período</p>
         </div>
 
-        <table className="w-full border-collapse border border-slate-900">
+        <table className="w-full border-collapse border border-gray-300 text-xs">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-900">
-              <th className="px-2 py-1 text-left text-[7px] font-black uppercase">Produto</th>
-              <th className="px-2 py-1 text-center text-[7px] font-black uppercase">Qtd Vendida</th>
-              <th className="px-2 py-1 text-center text-[7px] font-black uppercase">Restante</th>
-              <th className="px-2 py-1 text-right text-[7px] font-black uppercase">Ref</th>
+            <tr className="bg-gray-100 border-b border-gray-300">
+              <th className="px-2 py-1 text-left text-[8px] font-bold uppercase">Produto</th>
+              <th className="px-2 py-1 text-center text-[8px] font-bold uppercase">Qtd Vendida</th>
+              <th className="px-2 py-1 text-center text-[8px] font-bold uppercase">Restante</th>
+              <th className="px-2 py-1 text-right text-[8px] font-bold uppercase">Ref</th>
             </tr>
           </thead>
           <tbody>
             {data.inventoryReport.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-2 py-4 text-center text-slate-400 font-bold uppercase text-[8px]">
+                <td colSpan={4} className="px-2 py-2 text-center text-gray-500 text-[8px]">
                   Nenhum produto cadastrado no sistema
                 </td>
               </tr>
             ) : (
               data.inventoryReport.map(item => (
-                <tr key={item.id} className="border-b border-slate-100">
-                  <td className="px-2 py-0.5 leading-tight">
-                    <p className="text-[8px] font-black text-black uppercase">{item.name}</p>
-                    <p className="text-[6px] font-bold text-slate-400">{item.brand} - {item.volume}</p>
+                <tr key={item.id} className="border-b border-gray-200">
+                  <td className="px-2 py-1 leading-tight">
+                    <p className="text-[10px] font-bold uppercase">{item.name}</p>
+                    <p className="text-[8px] text-gray-500">{item.brand} - {item.volume}</p>
                   </td>
-                  <td className="px-2 py-0.5 text-center border-x border-slate-50">
-                    <span className="text-[8px] font-black text-black">{item.sold} un</span>
+                  <td className="px-2 py-1 text-center border-x border-gray-100">
+                    <span className="text-[10px] font-bold">{item.sold} un</span>
                   </td>
-                  <td className="px-2 py-0.5 text-center border-r border-slate-50">
-                    <span className="text-[8px] font-bold text-slate-600">{item.stock} un</span>
+                  <td className="px-2 py-1 text-center border-r border-gray-100">
+                    <span className="text-[10px]">{item.stock} un</span>
                   </td>
-                  <td className="px-2 py-0.5 text-right">
-                    <div className="inline-block px-1 border border-slate-200 text-[6px] font-black text-slate-500">
+                  <td className="px-2 py-1 text-right">
+                    <div className="inline-block px-1 border border-gray-300 text-[8px] text-gray-600">
                       {item.sold > item.stock ? 'GIRO ALTO' : 'REGULAR'}
                     </div>
                   </td>

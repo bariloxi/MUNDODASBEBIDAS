@@ -9,6 +9,7 @@ import DailyClosingReport from './DailyClosingReport';
 
 export default function DailyClosingAction({ isYesterday }: { isYesterday?: boolean }) {
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [sales, setSales] = useState<any[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -21,7 +22,7 @@ export default function DailyClosingAction({ isYesterday }: { isYesterday?: bool
   const handleOpen = async () => {
     setLoading(true);
     try {
-      let targetDate = new Date();
+      const targetDate = new Date();
       if (isYesterday) {
         targetDate.setDate(targetDate.getDate() - 1);
       }
@@ -59,7 +60,7 @@ export default function DailyClosingAction({ isYesterday }: { isYesterday?: bool
 
       {showPreview && mounted && createPortal(
         <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/95 backdrop-blur-xl p-4 sm:p-10 overflow-y-auto print:p-0 print:static print:bg-white">
-          <div className="bg-white rounded-none w-full max-w-5xl flex flex-col shadow-2xl print:shadow-none print:max-w-none">
+          <div className="bg-white rounded-none w-full max-w-md flex flex-col shadow-2xl print:shadow-none print:max-w-none">
             <div className="p-4 sm:px-8 border-b-2 border-slate-200 flex items-center justify-between bg-slate-50 sticky top-0 z-10 print:hidden">
               <div className="flex items-center gap-3">
                 <Calculator className="text-emerald-600" size={24} />

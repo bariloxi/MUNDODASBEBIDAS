@@ -15,11 +15,11 @@ async function checkDatabase() {
       error: null,
       env: process.env.DATABASE_URL ? 'DEFINIDA (Oculta)' : 'NÃO DEFINIDA'
     };
-  } catch (err: any) {
+  } catch (err) {
     return { 
       status: 'offline', 
       duration: Date.now() - start, 
-      error: err.message || 'Erro desconhecido',
+      error: err instanceof Error ? err.message : 'Erro desconhecido',
       env: process.env.DATABASE_URL ? 'DEFINIDA (Oculta)' : 'NÃO DEFINIDA'
     };
   }
@@ -76,7 +76,7 @@ export default async function DebugDBPage() {
             <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl">
               <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Dica de Suporte</p>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Se o status for 'OFFLINE', verifique se o projeto Neon não está suspenso ou se a senha foi alterada recentemente.
+                Se o status for &apos;OFFLINE&apos;, verifique se o projeto Neon não está suspenso ou se a senha foi alterada recentemente.
               </p>
             </div>
           </div>

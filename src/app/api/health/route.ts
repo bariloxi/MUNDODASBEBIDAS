@@ -11,13 +11,13 @@ export async function GET() {
       database: 'connected',
       timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('HEALTH_CHECK_FAILED:', error);
     
     return NextResponse.json({
       status: 'degraded',
       database: 'disconnected',
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     }, { status: 503 });
   }

@@ -17,6 +17,7 @@ const pool = new Pool({
   connectionTimeoutMillis: 5000, // Fail fast if can't connect
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const adapter = new PrismaNeon(pool as any);
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };

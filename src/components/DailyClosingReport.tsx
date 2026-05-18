@@ -38,75 +38,75 @@ export default function DailyClosingReport({ sales, date }: DailyClosingReportPr
   const totalDay = sales.reduce((acc, sale) => acc + sale.total, 0);
 
   return (
-    <div 
-      className="bg-white p-8 w-full max-w-[210mm] mx-auto font-sans text-black force-black-text"
+    <div
+      className="bg-white p-2 w-full max-w-[300px] mx-auto font-sans text-black force-black-text text-xs"
       style={{ backgroundColor: '#ffffff' }}
     >
-      <div className="text-center border-b-4 border-black pb-6 mb-8">
-        <h1 className="text-3xl font-black uppercase">Fechamento de Caixa Diário</h1>
-        <p className="text-xl font-bold mt-2">{formatDate(date.toISOString())}</p>
-        <p className="text-sm mt-1 uppercase">Mundo das Bebidas Disk</p>
+      <div className="text-center border-b border-black pb-2 mb-4">
+        <h1 className="text-sm font-bold uppercase">Fechamento de Caixa Diário</h1>
+        <p className="text-xs mt-1">{formatDate(date.toISOString())}</p>
+        <p className="text-[10px] mt-1 uppercase text-gray-600">Mundo das Bebidas Disk</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-8 mb-10">
-        <div className="border-2 border-black p-4">
-          <h2 className="font-black uppercase text-sm mb-4 border-b-2 border-black pb-2">Resumo por Método</h2>
-          <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="border border-black p-3">
+          <h2 className="font-bold uppercase text-[10px] mb-2 border-b border-black pb-1">Resumo por Método</h2>
+          <div className="space-y-1">
             {Object.entries(totalByMethod).map(([method, amount]) => (
-              <div key={method} className="flex justify-between font-bold text-lg">
+              <div key={method} className="flex justify-between text-xs">
                 <span className="uppercase">{method.replace(/_/g, ' ')}:</span>
                 <span>R$ {amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
               </div>
             ))}
-            <div className="flex justify-between font-black text-2xl pt-4 border-t-4 border-black mt-4">
+            <div className="flex justify-between font-bold text-xs pt-2 border-t border-black mt-2">
               <span>TOTAL DIA:</span>
               <span>R$ {totalDay.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
           </div>
         </div>
-        <div className="border-2 border-black p-4 flex flex-col justify-center items-center">
-          <p className="text-sm font-black uppercase mb-2">Total de Vendas</p>
-          <p className="text-6xl font-black">{sales.length}</p>
-          <p className="text-sm font-bold uppercase mt-2">Operações Realizadas</p>
+        <div className="border border-black p-3 flex flex-col justify-center items-center">
+          <p className="text-[10px] uppercase mb-1">Total de Vendas</p>
+          <p className="text-lg font-bold">{sales.length}</p>
+          <p className="text-[10px] uppercase mt-1">Operações Realizadas</p>
         </div>
       </div>
 
-      <h2 className="font-black uppercase text-lg mb-4 border-b-4 border-black pb-2">Detalhamento das Vendas</h2>
-      <table className="w-full border-collapse mb-10">
+      <h2 className="font-bold uppercase text-[10px] mb-2 border-b border-black pb-1">Detalhamento das Vendas</h2>
+      <table className="w-full border-collapse mb-6 text-xs">
         <thead>
-          <tr className="border-b-4 border-black">
-            <th className="text-left py-2 font-black uppercase text-sm">Venda</th>
-            <th className="text-left py-2 font-black uppercase text-sm">Cliente</th>
-            <th className="text-left py-2 font-black uppercase text-sm">Pagamento</th>
-            <th className="text-right py-2 font-black uppercase text-sm">Valor</th>
+          <tr className="border-b border-black">
+            <th className="text-left py-1 font-bold uppercase text-[10px]">Venda</th>
+            <th className="text-left py-1 font-bold uppercase text-[10px]">Cliente</th>
+            <th className="text-left py-1 font-bold uppercase text-[10px]">Pagamento</th>
+            <th className="text-right py-1 font-bold uppercase text-[10px]">Valor</th>
           </tr>
         </thead>
         <tbody>
           {sales.map((sale) => (
-            <tr key={sale.id} className="border-b-2 border-black/10">
-              <td className="py-4 font-bold">#{sale.id.toString().padStart(4, '0')}</td>
-              <td className="py-4 font-black uppercase">{sale.client?.name || 'Venda Balcão'}</td>
-              <td className="py-4 font-bold uppercase">{sale.paymentMethod}</td>
-              <td className="py-4 text-right font-black text-lg">R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+            <tr key={sale.id} className="border-b border-gray-200">
+              <td className="py-1">#{sale.id.toString().padStart(4, '0')}</td>
+              <td className="py-1 uppercase">{sale.client?.name || 'Venda Balcão'}</td>
+              <td className="py-1 uppercase">{sale.paymentMethod}</td>
+              <td className="py-1 text-right">R$ {sale.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <div className="mt-20 grid grid-cols-2 gap-20">
-        <div className="border-t-4 border-black pt-4 text-center">
-          <p className="font-black uppercase text-sm">Assinatura do Responsável</p>
+      <div className="mt-8 grid grid-cols-2 gap-8">
+        <div className="border-t border-black pt-2 text-center">
+          <p className="uppercase text-[10px]">Assinatura do Responsável</p>
         </div>
-        <div className="border-t-4 border-black pt-4 text-center">
-          <p className="font-black uppercase text-sm">Conferência Administrativa</p>
+        <div className="border-t border-black pt-2 text-center">
+          <p className="uppercase text-[10px]">Conferência Administrativa</p>
         </div>
       </div>
 
-      <div className="text-center mt-20 pt-10 border-t-2 border-black/10">
-        <p className="text-[10px] font-bold uppercase">Sistema Mundo das Bebidas - Relatório de Fechamento Emitido em {formatDateTime(new Date().toISOString())}</p>
+      <div className="text-center mt-6 pt-4 border-t border-gray-200">
+        <p className="text-[8px] uppercase text-gray-500">Sistema Mundo das Bebidas - Relatório de Fechamento Emitido em {formatDateTime(new Date().toISOString())}</p>
       </div>
 
-      <div className="print:break-before-page mt-12 border-t-8 border-black pt-12">
+      <div className="print:break-before-page mt-8 border-t-2 border-black pt-8">
         <DailyItemsReport sales={sales} date={date} isEmbedded={true} />
       </div>
     </div>

@@ -19,8 +19,6 @@ export const dynamic = 'force-dynamic';
 
 async function getDashboardData() {
   try {
-    const now = new Date();
-    
     // 1. Total Revenue (Excluding canceled)
     const allSalesData = await prisma.sale.findMany({
       select: { total: true, status: true }
